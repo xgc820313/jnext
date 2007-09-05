@@ -1,0 +1,9 @@
+; Js2n.def : Declares the module parameters.
+
+LIBRARY      "Js2n.OCX"
+
+EXPORTS
+	DllCanUnloadNow     PRIVATE
+	DllGetClassObject   PRIVATE
+	DllRegisterServer   PRIVATE
+	DllUnregisterServer PRIVATE

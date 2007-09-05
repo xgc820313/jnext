@@ -1,0 +1,5 @@
+LIBRARY   sockets
+
+EXPORTS
+	SetEventFunc	@1
+	InvokeFunction	@2

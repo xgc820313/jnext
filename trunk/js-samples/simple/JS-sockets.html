@@ -1,0 +1,215 @@
+﻿<HTML>
+<head>
+<script language="JavaScript" for="objJSExt" EVENT="Js2nEvent( strEvent )">
+    callback(strEvent)
+</script>
+</head>
+<BODY>
+<!--------------------------------------------------------------->
+<!----- The following are the bridges to the native code  ------->
+<!----- ActiveX on IE browsers and NPAPI plugin on others ------->
+<!--------------------------------------------------------------->
+<object id="objJSExt" width="1" height="1"
+     classid="CLSID:C802F39D-BF85-427a-A334-77E501DB62E9"
+     codebase="Js2n.ocx"></object>
+
+<embed id="embed1" type="application/mozilla-npruntime-scriptable-plugin" width="1" height="1"><br>
+<!--------------------------------------------------------------->
+
+<script>
+///////////////////////////////////////////////////////////////////
+// This is the main JavaScript framework for js2n
+///////////////////////////////////////////////////////////////////
+function EventDispatcher()
+{
+	var self = this;
+	self.m_arEvents = new Object();
+	
+	self.registerEvents = function( objNotify )
+	{
+		var strId = objNotify.getId();
+		self.m_arEvents[ strId ] = objNotify;
+	}
+	
+	self.unregisterEvents = function( objNotify )
+	{
+		var strId = objNotify.getId();
+		delete self.m_arEvents[ strId ];
+	}
+	
+	self.processEvent = function( strId, strEvent )
+	{
+		var objNotify = self.m_arEvents[ strId ];
+		objNotify.onEvent( strEvent );
+	}
+}
+
+var g_eventDispatcher = new EventDispatcher();
+
+function callback( strVal )
+{
+	var arParams	= strVal.split( " " );
+	var strObjId	= arParams[ 0 ];
+	var strEvent	= strVal.substring( strObjId.length + 1 );
+	g_eventDispatcher.processEvent( strObjId, strEvent ); 
+}
+
+///////////////////////////////////////////////////////////////////
+// This is the socket plugin specific JavaScript wrapper
+///////////////////////////////////////////////////////////////////
+
+function AsyncLineSocket()
+{
+    var self = this;
+
+    self.connect = function( strAddress, nPort )
+	{
+		var strVal = objJSExt.sendCmd( self.m_strCmd + self.m_strObjId + " Connect " + strAddress + " " + nPort );
+		arParams = strVal.split( " " );
+		return ( arParams[ 0 ] == "Ok" )
+    }
+
+	self.sendLine = function( strLine )
+	{
+		var strVal = objJSExt.sendCmd( self.m_strCmd + self.m_strObjId + " SendLine " + strLine );
+		arParams = strVal.split( " " );
+		return ( arParams[ 0 ] == "Ok" )
+	}
+	
+	self.close = function()
+	{
+		strRes = objJSExt.sendCmd( self.m_strCmd + self.m_strObjId + " Close" );		
+		strRes = objJSExt.sendCmd( self.m_strCmd + self.m_strObjId + " Dispose" );
+		g_eventDispatcher.unregisterEvents( self );
+	}
+		
+	self.onEvent = function( strData )
+	{
+		var arData = strData.split( " " );
+		var strEventDesc = arData[ 0 ];
+		switch ( strEventDesc )
+		{
+			case "Connected":
+			{
+				self.onConnected();
+				break;
+			}
+			
+			case "Close":
+			{
+				self.onClose();
+				break;
+			}
+			
+			case "OnLine":
+			{
+				var strLine = strData.substring( strEventDesc.length + 1 );
+				self.onLine( strLine );
+				break;
+			}
+		}
+	}
+	
+	self.getId = function()
+	{
+		return self.m_strObjId; 
+	}
+
+	self.init = function()
+	{
+		var strVal = objJSExt.sendCmd( "Require Sockets" );
+		var arParams = strVal.split( " " );
+		if ( arParams[ 0 ] != "Ok" )
+		{
+			return 0;
+		}
+		strVal = objJSExt.sendCmd( "CreateObject ClientSocket" );
+		arParams = strVal.split( " " );
+		if ( arParams[ 0 ] != "Ok" )
+		{
+			return 0;
+		}
+		self.m_strObjId = arParams[ 1 ];
+		g_eventDispatcher.registerEvents( self );
+	}
+
+	self.onConnected = function()
+	{
+		alert( "onConnected" );
+	}
+	
+	self.onLine = function( strLine )
+	{
+		alert( "onLine:" + strLine );
+	}
+	
+	self.onClose = function()
+	{
+		alert( "onClose" );
+	}
+	
+	self.m_strObjId = "";
+	self.m_strCmd = "InvokeMethod ";
+	self.init();
+}
+
+function TestConnection()
+{
+	var self = this;
+	
+	//---------------------------------------------------------------------------
+	// Implement LineAsyncSocket overrideables
+	//---------------------------------------------------------------------------
+	self.onConnected = function()
+	{
+		alert( "SocketHGS onConnected" );
+		self.m_socket.sendLine( "this is a test:" + self.m_nCount++ );
+	}
+	
+	self.onLine = function( strLine )
+	{
+		alert( "SocketHGS onLine:" + strLine );
+		self.m_socket.sendLine( "this is a test:" + self.m_nCount++ );
+	}
+	
+	self.onClose = function()
+	{
+		alert( "SocketHGS onClose" );
+		self.m_socket.close();
+	}
+	
+	self.m_socket = new AsyncLineSocket();
+	self.m_socket.onConnected	= self.onConnected;
+	self.m_socket.onLine		= self.onLine;
+	self.m_socket.onClose		= self.onClose;	
+
+	//---------------------------------------------------------------------------
+
+	self.connect = function( strIP )
+	{
+		self.m_socket.connect( strIP, 64446 );
+	}
+	
+	self.close = function()
+	{
+		self.m_socket.close();
+	}
+	
+	self.m_nCount = 0;
+}
+
+function test()
+{
+	var objConn = new TestConnection()
+	objConn.connect( "127.0.0.1" );
+}
+
+</script>
+
+
+<input type=button value="sendCmd()" onclick='test()'>
+
+</center>
+
+</BODY>
+</HTML>
