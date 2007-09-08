@@ -17,7 +17,7 @@ while (1)
 	{
 		my $strLine = <$new_sock>;
 		print $strLine;
-		$new_sock->send( "Hi there $i\n" );
+		$new_sock->send( "Sent from Perl: Hi there $i\n" );
 	}
 	close($new_sock);
 }

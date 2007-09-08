@@ -13,7 +13,7 @@ while 1:
 		line = fs.readline()
 		if not line: break
 		print line.rstrip()
-		conn.send("Hi There " + str(i) + "\n" )
+		conn.send("Sent from Python: Hi There " + str(i) + "\n" )
 	fs.close()
 	conn.close()
 s.close()

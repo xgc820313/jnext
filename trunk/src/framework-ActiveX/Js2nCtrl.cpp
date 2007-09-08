@@ -278,7 +278,7 @@ bool SendEventToJS( const PString& strEvent )
 	CWebPage page;
 	page.SetDocument( pDisp );
 	string strEvent1 = strEvent;
-	page.CallJScript( "callback", strEvent1.c_str() );
+	page.CallJScript( "JNEXT_callback_native2js", strEvent1.c_str() );
 	*/
 	return true;
 }

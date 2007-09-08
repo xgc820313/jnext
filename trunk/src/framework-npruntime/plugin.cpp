@@ -466,7 +466,7 @@ bool SendEventToJS( const PString& strEvent )
 	// plugin or ActiveX plugin)
 
 	// This implementation is specific to NPAPI plugins.
-	PString strJSCall = "javascript:callback('" + strEvent + "')"; 
+	PString strJSCall = "javascript:JNEXT_callback_native2js('" + strEvent + "')"; 
 	return (NPN_GetURL( g_pNPInstance, strJSCall,"_self") == NPERR_NO_ERROR );
 }
 
