@@ -50,14 +50,14 @@
           <preprocessor>ENABLE_BINRELOC XPCOM_GLUE MOZILLA_STRICT_API XP_UNIX MOZ_X11</preprocessor>
         </ccCompilerTool>
         <linkerTool>
-          <output>/usr/lib/firefox/plugins/nprn.so</output>
+          <output>/usr/lib/firefox/plugins/jnext.so</output>
           <linkerAddLib>
             <directoryPath>/root/pwlib/lib</directoryPath>
           </linkerAddLib>
           <linkerLibItems>
             <linkerLibLibItem>pt_linux_x86_d_s</linkerLibLibItem>
           </linkerLibItems>
-          <commandLine>-fno-rtti -fno-exceptions</commandLine>
+          <commandLine>-fno-rtti -fno-exceptions -lrt</commandLine>
         </linkerTool>
       </compileType>
       <item path="../common/binreloc.c">
@@ -108,7 +108,7 @@
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
-          <output>/usr/lib/firefox/plugins/nprn.so</output>
+          <output>/usr/lib/firefox/plugins/jnext.so</output>
           <linkerAddLib>
             <directoryPath>/root/pwlib/lib</directoryPath>
           </linkerAddLib>
@@ -116,7 +116,7 @@
           <linkerLibItems>
             <linkerLibLibItem>pt_linux_x86_r_s</linkerLibLibItem>
           </linkerLibItems>
-          <commandLine>-fno-rtti -fno-exceptions</commandLine>
+          <commandLine>-fno-rtti -fno-exceptions -lrt</commandLine>
         </linkerTool>
       </compileType>
       <item path="../common/binreloc.c">

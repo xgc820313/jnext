@@ -39,14 +39,14 @@
           <commandLine>-fPIC</commandLine>
         </ccCompilerTool>
         <linkerTool>
-          <output>/usr/lib/firefox/plugins/js2n/Sockets.so</output>
+          <output>/usr/lib/firefox/plugins/jnext/Sockets.so</output>
           <linkerAddLib>
             <directoryPath>/root/pwlib/lib</directoryPath>
           </linkerAddLib>
           <linkerLibItems>
             <linkerLibFileItem>/root/pwlib/lib/libpt_linux_x86_d_s.a</linkerLibFileItem>
           </linkerLibItems>
-          <commandLine>-fno-rtti -fno-exceptions -rdynamic</commandLine>
+          <commandLine>-fno-rtti -fno-exceptions -rdynamic -lrt</commandLine>
         </linkerTool>
       </compileType>
       <item path="sockets.cpp">
@@ -77,7 +77,7 @@
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
-          <output>/usr/lib/firefox/plugins/js2n/Sockets.so</output>
+          <output>/usr/lib/firefox/plugins/jnext/Sockets.so</output>
           <linkerAddLib>
             <directoryPath>/root/pwlib/lib</directoryPath>
           </linkerAddLib>
@@ -85,7 +85,7 @@
           <linkerLibItems>
             <linkerLibFileItem>/root/pwlib/lib/libpt_linux_x86_r_s.a</linkerLibFileItem>
           </linkerLibItems>
-          <commandLine>-fno-rtti -fno-exceptions</commandLine>
+          <commandLine>-fno-rtti -fno-exceptions -rdynamic -lrt</commandLine>
         </linkerTool>
       </compileType>
       <item path="sockets.cpp">

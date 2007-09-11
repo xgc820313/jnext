@@ -27,11 +27,11 @@ OBJECTDIR=build/Release/GNU-Linux-x86
 OBJECTFILES= \
 	${OBJECTDIR}/plugin.o \
 	${OBJECTDIR}/nprn.o \
-	${OBJECTDIR}/_ext/root/js2n/src/framework-npruntime/../common/binreloc.o \
+	${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common/binreloc.o \
 	${OBJECTDIR}/npp_gate.o \
 	${OBJECTDIR}/npn_gate.o \
 	${OBJECTDIR}/np_entry.o \
-	${OBJECTDIR}/_ext/root/js2n/src/framework-npruntime/../common/nativelogic.o
+	${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common/nativelogic.o
 
 # C Compiler Flags
 CFLAGS=
@@ -49,11 +49,11 @@ LDLIBSOPTIONS=\
 	-lpt_linux_x86_r_s
 
 # Build Targets
-.build-conf: ${BUILD_SUBPROJECTS} /usr/lib/firefox/plugins/nprn.so
+.build-conf: ${BUILD_SUBPROJECTS} /usr/lib/firefox/plugins/jnext.so
 
-/usr/lib/firefox/plugins/nprn.so: ${OBJECTFILES}
+/usr/lib/firefox/plugins/jnext.so: ${OBJECTFILES}
 	${MKDIR} -p /usr/lib/firefox/plugins
-	${LINK.cc} -fno-rtti -fno-exceptions -shared -o /usr/lib/firefox/plugins/nprn.so -s ${OBJECTFILES} ${LDLIBSOPTIONS} 
+	${LINK.cc} -fno-rtti -fno-exceptions -lrt -shared -o /usr/lib/firefox/plugins/jnext.so -s ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
 ${OBJECTDIR}/plugin.o: plugin.cpp 
 	${MKDIR} -p ${OBJECTDIR}
@@ -63,9 +63,9 @@ ${OBJECTDIR}/nprn.o: nprn.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	$(COMPILE.cc) -O2 -DENABLE_BINRELOC -DXPCOM_GLUE -DMOZILLA_STRICT_API -DXP_UNIX -DMOZ_X11 -Igecko-sdk/include -I/root/pwlib/include -o ${OBJECTDIR}/nprn.o nprn.cpp
 
-${OBJECTDIR}/_ext/root/js2n/src/framework-npruntime/../common/binreloc.o: ../common/binreloc.c 
-	${MKDIR} -p ${OBJECTDIR}/_ext/root/js2n/src/framework-npruntime/../common
-	$(COMPILE.c) -O2 -DENABLE_BINRELOC -o ${OBJECTDIR}/_ext/root/js2n/src/framework-npruntime/../common/binreloc.o ../common/binreloc.c
+${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common/binreloc.o: ../common/binreloc.c 
+	${MKDIR} -p ${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common
+	$(COMPILE.c) -O2 -DENABLE_BINRELOC -o ${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common/binreloc.o ../common/binreloc.c
 
 ${OBJECTDIR}/npp_gate.o: npp_gate.cpp 
 	${MKDIR} -p ${OBJECTDIR}
@@ -79,9 +79,9 @@ ${OBJECTDIR}/np_entry.o: np_entry.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	$(COMPILE.cc) -O2 -DENABLE_BINRELOC -DXPCOM_GLUE -DMOZILLA_STRICT_API -DXP_UNIX -DMOZ_X11 -Igecko-sdk/include -I/root/pwlib/include -o ${OBJECTDIR}/np_entry.o np_entry.cpp
 
-${OBJECTDIR}/_ext/root/js2n/src/framework-npruntime/../common/nativelogic.o: ../common/nativelogic.cpp 
-	${MKDIR} -p ${OBJECTDIR}/_ext/root/js2n/src/framework-npruntime/../common
-	$(COMPILE.cc) -O2 -DENABLE_BINRELOC -DXPCOM_GLUE -DMOZILLA_STRICT_API -DXP_UNIX -DMOZ_X11 -Igecko-sdk/include -I/root/pwlib/include -o ${OBJECTDIR}/_ext/root/js2n/src/framework-npruntime/../common/nativelogic.o ../common/nativelogic.cpp
+${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common/nativelogic.o: ../common/nativelogic.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common
+	$(COMPILE.cc) -O2 -DENABLE_BINRELOC -DXPCOM_GLUE -DMOZILLA_STRICT_API -DXP_UNIX -DMOZ_X11 -Igecko-sdk/include -I/root/pwlib/include -o ${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common/nativelogic.o ../common/nativelogic.cpp
 
 # Subprojects
 .build-subprojects:
@@ -89,7 +89,7 @@ ${OBJECTDIR}/_ext/root/js2n/src/framework-npruntime/../common/nativelogic.o: ../
 # Clean Targets
 .clean-conf:
 	${RM} -r build/Release
-	${RM} /usr/lib/firefox/plugins/nprn.so
+	${RM} /usr/lib/firefox/plugins/jnext.so
 
 # Subprojects
 .clean-subprojects:

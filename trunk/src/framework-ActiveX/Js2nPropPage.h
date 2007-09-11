@@ -7,22 +7,22 @@
 
 class CJs2nPropPage : public COlePropertyPage
 {
-	DECLARE_DYNCREATE(CJs2nPropPage)
-	DECLARE_OLECREATE_EX(CJs2nPropPage)
+    DECLARE_DYNCREATE( CJs2nPropPage )
+    DECLARE_OLECREATE_EX( CJs2nPropPage )
 
 // Constructor
 public:
-	CJs2nPropPage();
+    CJs2nPropPage();
 
 // Dialog Data
-	enum { IDD = IDD_PROPPAGE_Js2n };
+    enum { IDD = IDD_PROPPAGE_Js2n };
 
 // Implementation
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+    virtual void DoDataExchange( CDataExchange* pDX );  // DDX/DDV support
 
 // Message maps
 protected:
-	DECLARE_MESSAGE_MAP()
+    DECLARE_MESSAGE_MAP()
 };
 

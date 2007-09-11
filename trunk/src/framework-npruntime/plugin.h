@@ -14,7 +14,7 @@
  *
  * The Original Code is mozilla.org code.
  *
- * The Initial Developer of the Original Code is 
+ * The Initial Developer of the Original Code is
  * Netscape Communications Corporation.
  * Portions created by the Initial Developer are Copyright (C) 1998
  * the Initial Developer. All Rights Reserved.
@@ -22,7 +22,7 @@
  * Contributor(s):
  *
  * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or 
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
  * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
  * in which case the provisions of the GPL or the LGPL are applicable instead
  * of those above. If you wish to allow use of your version of this file only
@@ -44,37 +44,37 @@
 class CPlugin
 {
 private:
-  NPP m_pNPInstance;
+    NPP m_pNPInstance;
 
 #ifdef XP_WIN
-  HWND m_hWnd; 
+    HWND m_hWnd;
 #endif
 
-  NPWindow * m_Window;
-  
-  NPStream * m_pNPStream;
-  NPBool m_bInitialized;
+    NPWindow * m_Window;
 
-  NPObject *m_pScriptableObject;
+    NPStream * m_pNPStream;
+    NPBool m_bInitialized;
 
-public:
-  char m_String[128];
+    NPObject *m_pScriptableObject;
 
 public:
-  CPlugin(NPP pNPInstance);
-  ~CPlugin();
+    char m_String[128];
 
-  NPBool init(NPWindow* pNPWindow);
-  void shut();
-  NPBool isInitialized();
-  
-  int16 handleEvent(void* event);
+public:
+    CPlugin( NPP pNPInstance );
+    ~CPlugin();
 
-  void showVersion();
-  void clear();
-  void getVersion(char* *aVersion);
+    NPBool init( NPWindow* pNPWindow );
+    void shut();
+    NPBool isInitialized();
 
-  NPObject *GetScriptableObject();
+    int16 handleEvent( void* event );
+
+    void showVersion();
+    void clear();
+    void getVersion( char* *aVersion );
+
+    NPObject *GetScriptableObject();
 };
 
 #endif // __PLUGIN_H__

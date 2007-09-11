@@ -43,11 +43,11 @@ LDLIBSOPTIONS=\
 	/root/pwlib/lib/libpt_linux_x86_r_s.a
 
 # Build Targets
-.build-conf: ${BUILD_SUBPROJECTS} /usr/lib/firefox/plugins/js2n/Sockets.so
+.build-conf: ${BUILD_SUBPROJECTS} /usr/lib/firefox/plugins/jnext/Sockets.so
 
-/usr/lib/firefox/plugins/js2n/Sockets.so: ${OBJECTFILES}
-	${MKDIR} -p /usr/lib/firefox/plugins/js2n
-	${LINK.cc} -fno-rtti -fno-exceptions -shared -o /usr/lib/firefox/plugins/js2n/Sockets.so -s ${OBJECTFILES} ${LDLIBSOPTIONS} 
+/usr/lib/firefox/plugins/jnext/Sockets.so: ${OBJECTFILES}
+	${MKDIR} -p /usr/lib/firefox/plugins/jnext
+	${LINK.cc} -fno-rtti -fno-exceptions -rdynamic -lrt -shared -o /usr/lib/firefox/plugins/jnext/Sockets.so -s ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
 ${OBJECTDIR}/sockets.o: sockets.cpp 
 	${MKDIR} -p ${OBJECTDIR}
@@ -59,7 +59,7 @@ ${OBJECTDIR}/sockets.o: sockets.cpp
 # Clean Targets
 .clean-conf:
 	${RM} -r build/Release
-	${RM} /usr/lib/firefox/plugins/js2n/Sockets.so
+	${RM} /usr/lib/firefox/plugins/jnext/Sockets.so
 
 # Subprojects
 .clean-subprojects:

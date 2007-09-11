@@ -14,7 +14,7 @@
 
 #define IDB_Js2n               1
 
-#define IDI_ABOUTDLL				1
+#define IDI_ABOUTDLL    1
 
 #define _APS_NEXT_RESOURCE_VALUE        201
 #define _APS_NEXT_CONTROL_VALUE         201

@@ -14,7 +14,7 @@
  * License.
  *
  * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or 
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
  * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
  * in which case the provisions of the GPL or the LGPL are applicable instead
  * of those above. If you wish to allow use of your version of this file only
@@ -26,7 +26,7 @@
  * the terms of any one of the NPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-/* 
+/*
 * Revision 1.1  2007/08/31 16:14:58  amnond
 * Initial revision
 */
@@ -44,13 +44,13 @@
 
 class PInvokeMethod;
 
-PDictionary<PString,PDynaLink>		g_File2DynaLink;
-PDictionary<PString,PInvokeMethod>	g_Class2Invoke;
-PDictionary<PString,PInvokeMethod>	g_ObjID2Invoke;
+PDictionary<PString,PDynaLink>  g_File2DynaLink;
+PDictionary<PString,PInvokeMethod> g_Class2Invoke;
+PDictionary<PString,PInvokeMethod> g_ObjID2Invoke;
 
 ////////////////////////////////////////////////////////////////////////////////
 // The implementation of SendEventToJS depends on the method
-// used to communicate with the hosting browser - it might be 
+// used to communicate with the hosting browser - it might be
 // implemented as an event via an NPAPI plugin or as an event
 // via ActiveX for Internet Explorer host.
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,24 +62,24 @@ extern bool SendEventToJS( const PString& strEvent );
 //______________________________________________________________________________
 class PWLibProcess : public PProcess
 {
-    PCLASSINFO(PWLibProcess, PProcess)
-  public:
+    PCLASSINFO( PWLibProcess, PProcess )
+public:
     PWLibProcess();
 
     void Main();
 };
 
 PWLibProcess::PWLibProcess()
-  : PProcess("pwlibproc", "jnext",
-             1, 1 )
+        : PProcess( "pwlibproc", "jnext",
+                    1, 1 )
 {
-	// The objects will already be deleted by g_Class2Invoke destructor
-	g_ObjID2Invoke.DisallowDeleteObjects();
+    // The objects will already be deleted by g_Class2Invoke destructor
+    g_ObjID2Invoke.DisallowDeleteObjects();
 }
 
 void PWLibProcess::Main()
 {
-  // Empty function
+    // Empty function
 }
 
 PWLibProcess g_pwlibProcess;
@@ -89,8 +89,8 @@ PWLibProcess g_pwlibProcess;
 bool tNativeLogic::Init( const PString& strURL, const PString& strPluginsPath )
 {
 
-    m_strURL	= strURL;
-    m_strPath	= strPluginsPath;
+    m_strURL = strURL;
+    m_strPath = strPluginsPath;
     m_strUserAgent  = "";
     m_nObjId.SetValue( 0 );
     PTextFile filePermissions;
@@ -118,56 +118,56 @@ bool tNativeLogic::Init( const PString& strURL, const PString& strPluginsPath )
 
 void SendPluginEvent( const char* szEvent )
 {
-	PString strEvent = szEvent;
+    PString strEvent = szEvent;
 
-	SendEventToJS( strEvent );
+    SendEventToJS( strEvent );
 }
 //////////////////////////////////////////////////////////////////////
-typedef void (*SendPluginEv)( const char* szEvent );
-typedef char* (*SetEventFunc)(SendPluginEv funcPtr);
-typedef char* (*InvokeFunc)(const char* szCommand);
+typedef void ( *SendPluginEv )( const char* szEvent );
+typedef char*( *SetEventFunc )( SendPluginEv funcPtr );
+typedef char*( *InvokeFunc )( const char* szCommand );
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 class PInvokeMethod : public PObject
 {
 private:
-	PInvokeMethod( void )
-	{
-	}
+    PInvokeMethod( void )
+    {
+    }
 
 public:
-	PInvokeMethod( InvokeFunc pInvokefunc )
-	{
-		m_pInvokeFunc	= pInvokefunc;
-	}
+    PInvokeMethod( InvokeFunc pInvokefunc )
+    {
+        m_pInvokeFunc = pInvokefunc;
+    }
 
-	InvokeFunc	m_pInvokeFunc;
+    InvokeFunc m_pInvokeFunc;
 };
 
 PString tNativeLogic::GetSysErrMsg( void )
 {
-	PString strError = "Unknown";
-	// Problem loading 
+    PString strError = "Unknown";
+    // Problem loading
 #ifdef _WINDOWS
-	int nErrorCode = GetLastError();
-	LPTSTR s;
-	if (::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-						NULL, nErrorCode, 0, (LPTSTR)&s, 0, NULL))
-	{
-			strError = s;
-	}
-	else
-	{
-			strError = psprintf( "Error code %d", nErrorCode ); 
-	}
+    int nErrorCode = GetLastError();
+    LPTSTR s;
+    if ( ::FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+                          NULL, nErrorCode, 0, ( LPTSTR ) &s, 0, NULL ) )
+    {
+        strError = s;
+    }
+    else
+    {
+        strError = psprintf( "Error code %d", nErrorCode );
+    }
 #else
-	char* szError;
-	if ((szError = dlerror()) != NULL)
-	{
-		strError = szError;
-	}
+    char* szError;
+    if (( szError = dlerror() ) != NULL )
+    {
+        strError = szError;
+    }
 #endif
-	return strError;
+    return strError;
 }
 
 #ifdef _WINDOWS
@@ -178,117 +178,117 @@ const PString strSEP = "/";
 
 PString tNativeLogic::InvokeFunction( const PString& strFunction )
 {
-	PString strResult = "Ok";
-	PStringArray arParams = strFunction.Tokenise( " " );
-	PString strCommand = arParams[ 0 ];
-	if ( m_strPath.IsEmpty() )
-	{
-		return "Error Application path not set";
-	}
-	
-	if ( m_strUserAgent.IsEmpty() && strCommand == "userAgent" )
-	{
-		int nStart = strCommand.GetLength() + 1;
-		m_strUserAgent = strFunction.Mid( nStart );
-                
-                #ifdef _WINDOWS
-                        
-		m_strPath += strSEP;
-                if ( m_strUserAgent.Find( "Opera" ) != P_MAX_INDEX )
-		{
-			m_strPath += "program" + strSEP + "plugins" + strSEP + "jnext" + strSEP;
-		}
-                else
-                {
-   					m_strPath += "plugins" + strSEP + "jnext" + strSEP;  
-                }
-                    
-                #else
-                        
-				m_strPath += strSEP + "jnext" + strSEP;
-                
-                #endif
-                        
-		return strResult;
-	}
-	else
-	if ( m_strUserAgent.IsEmpty() )
-	{
-		return "Error User agent not set";
-	}
-	
-	if ( strCommand == "Require" )
-	{
-		// Requested use of a JS extension plugin
-		PString strLibrary = arParams[ 1 ];
+    PString strResult = "Ok";
+    PStringArray arParams = strFunction.Tokenise( " " );
+    PString strCommand = arParams[ 0 ];
+    if ( m_strPath.IsEmpty() )
+    {
+        return "Error Application path not set";
+    }
 
-		if ( g_File2DynaLink.GetAt( strLibrary ) != NULL )
-		{
-			// This JS extension plugin has already been loaded
-			return strResult;
-		}
+    if ( m_strUserAgent.IsEmpty() && strCommand == "userAgent" )
+    {
+        int nStart = strCommand.GetLength() + 1;
+        m_strUserAgent = strFunction.Mid( nStart );
 
-		if ( m_strURL.Left( 7 ) != "file://" ) // for now assume local files are safe
-		{
-			// Check if requests from this URL are allowed to access this library
-			if ( m_Permissions.Find( m_strURL, strLibrary ) )
-			{
-				return "Error No permission to load: " + strLibrary + " for " + m_strURL;;
-			}
-		}
+#ifdef XP_WIN
+		// Windows NPAPI
+        m_strPath += strSEP;
+        if ( m_strUserAgent.Find( "Opera" ) != P_MAX_INDEX )
+        {
+            m_strPath += "program" + strSEP + "plugins" + strSEP + "jnext" + strSEP;
+        }
+        else
+        {
+            m_strPath += "plugins" + strSEP + "jnext" + strSEP;
+        }
 
-		PDynaLink* pDynaLink = new PDynaLink();
-		PString strExt = pDynaLink->GetExtension();
+#else
+		// Linux NPAPI or Windows ActiveX
+        m_strPath += strSEP + "jnext" + strSEP;
 
-		PString strDynaLib = m_strPath + strLibrary + strExt;
-		if ( !pDynaLink->Open( strDynaLib ) )
-		{
-			delete pDynaLink;
-			return "Error Can't find " + strDynaLib + " " + GetSysErrMsg();
-		}
+#endif
 
-		// Get the function to set the callback and the receive the list
-		// of objects this JS extension supports
-		SetEventFunc setEventFunc;
-		if ( !pDynaLink->GetFunction( "SetEventFunc", (PDynaLink::Function&)setEventFunc ) )
-		{
-			delete pDynaLink;
-			return "Error Can't find SetEventFunc." + GetSysErrMsg();
-		}
+        return strResult;
+    }
+    else
+    if ( m_strUserAgent.IsEmpty() )
+    {
+        return "Error User agent not set";
+    }
 
-		// Set the callback function this JS extension plugin can invoke
-		// whenever an event is generated
-		PString strObjList = setEventFunc( SendPluginEvent );
+    if ( strCommand == "Require" )
+    {
+        // Requested use of a JS extension plugin
+        PString strLibrary = arParams[ 1 ];
 
-		// Get the pointer of the command invocation function for this
-		// JS extension plugin
-		InvokeFunc invokeFunc;
-		if ( !pDynaLink->GetFunction( "InvokeFunction", (PDynaLink::Function&)invokeFunc ) )
-		{
-			delete pDynaLink;
-			return "Error Can't find InvokeFunction:" + GetSysErrMsg();
-		}
+        if ( g_File2DynaLink.GetAt( strLibrary ) != NULL )
+        {
+            // This JS extension plugin has already been loaded
+            return strResult;
+        }
 
-		// Store the pDynaLink structure in the hash table, when
-		// the hash table will be cleared, all the pointers of
-		// PDynaLink will be deleted, unloading the shared libraries
-		// that they represent.
-		g_File2DynaLink.SetAt( strLibrary, pDynaLink );
+        if ( m_strURL.Left( 7 ) != "file://" )  // for now assume local files are safe
+        {
+            // Check if requests from this URL are allowed to access this library
+            if ( m_Permissions.Find( m_strURL, strLibrary ) )
+            {
+                return "Error No permission to load: " + strLibrary + " for " + m_strURL;;
+            }
+        }
 
-		// Create an object to store this pointer. This pointer
-		// will be deleted when g_Class2Invoke is cleared or destroyed
+        PDynaLink* pDynaLink = new PDynaLink();
+        PString strExt = pDynaLink->GetExtension();
 
-		PInvokeMethod* pInvokeMethod = new PInvokeMethod( invokeFunc );
+        PString strDynaLib = m_strPath + strLibrary + strExt;
+        if ( !pDynaLink->Open( strDynaLib ) )
+        {
+            delete pDynaLink;
+            return "Error Can't find " + strDynaLib + " " + GetSysErrMsg();
+        }
 
-		PStringArray arObjects = strObjList.Tokenise( "," );
-		int nTotal = arObjects.GetSize();
-		for (int i=0; i<nTotal; i++)
-		{
-			PString strClassName = arObjects[ i ];
-			g_Class2Invoke.SetAt( strClassName, pInvokeMethod );
-		}
-	}
-	else
+        // Get the function to set the callback and the receive the list
+        // of objects this JS extension supports
+        SetEventFunc setEventFunc;
+        if ( !pDynaLink->GetFunction( "SetEventFunc", ( PDynaLink::Function& ) setEventFunc ) )
+        {
+            delete pDynaLink;
+            return "Error Can't find SetEventFunc." + GetSysErrMsg();
+        }
+
+        // Set the callback function this JS extension plugin can invoke
+        // whenever an event is generated
+        PString strObjList = setEventFunc( SendPluginEvent );
+
+        // Get the pointer of the command invocation function for this
+        // JS extension plugin
+        InvokeFunc invokeFunc;
+        if ( !pDynaLink->GetFunction( "InvokeFunction", ( PDynaLink::Function& ) invokeFunc ) )
+        {
+            delete pDynaLink;
+            return "Error Can't find InvokeFunction:" + GetSysErrMsg();
+        }
+
+        // Store the pDynaLink structure in the hash table, when
+        // the hash table will be cleared, all the pointers of
+        // PDynaLink will be deleted, unloading the shared libraries
+        // that they represent.
+        g_File2DynaLink.SetAt( strLibrary, pDynaLink );
+
+        // Create an object to store this pointer. This pointer
+        // will be deleted when g_Class2Invoke is cleared or destroyed
+
+        PInvokeMethod* pInvokeMethod = new PInvokeMethod( invokeFunc );
+
+        PStringArray arObjects = strObjList.Tokenise( "," );
+        int nTotal = arObjects.GetSize();
+        for ( int i=0; i<nTotal; i++ )
+        {
+            PString strClassName = arObjects[ i ];
+            g_Class2Invoke.SetAt( strClassName, pInvokeMethod );
+        }
+    }
+    else
 	if ( strCommand == "CreateObject" )
 	{
 		PString strClassName = arParams[ 1 ];
@@ -299,13 +299,13 @@ PString tNativeLogic::InvokeFunction( const PString& strFunction )
 		}
 		PString strId = GetObjectId();
 		PString strExtCommand = "CreateObj " + strClassName + " " + strId;
-		PString strVal = pInvokeMethod->m_pInvokeFunc( (const char*)strExtCommand );
+		PString strVal = pInvokeMethod->m_pInvokeFunc(( const char* ) strExtCommand );
 		if ( strVal.Left( 2 ) != "Ok" )
 		{
 			return "Error Can't find method " + strExtCommand;
 		}
 
-		g_ObjID2Invoke.SetAt( strId, pInvokeMethod ); 
+		g_ObjID2Invoke.SetAt( strId, pInvokeMethod );
 		PString strRet = "Ok " + strId;
 		return strRet;
 	}
@@ -313,20 +313,20 @@ PString tNativeLogic::InvokeFunction( const PString& strFunction )
 	if ( strCommand == "InvokeMethod" )
 	{
 		PString strObjId = arParams[ 1 ];
-		PInvokeMethod* pInvokeMethod = g_ObjID2Invoke.GetAt( strObjId ); 
+		PInvokeMethod* pInvokeMethod = g_ObjID2Invoke.GetAt( strObjId );
 		if ( pInvokeMethod == NULL )
 		{
 			return "Error Can't find object for id " + strObjId;
 		}
-		PString strVal = pInvokeMethod->m_pInvokeFunc( (const char*)strFunction );
+		PString strVal = pInvokeMethod->m_pInvokeFunc(( const char* ) strFunction );
 		return strVal;
 	}
-	return strResult;
+    return strResult;
 }
 
 PString tNativeLogic::GetObjectId( void )
 {
-	PString strObjId;
-	strObjId.sprintf( "%i", ++m_nObjId );
-	return strObjId;
+    PString strObjId;
+    strObjId.sprintf( "%i", ++m_nObjId );
+    return strObjId;
 }

@@ -14,7 +14,7 @@
  * License.
  *
  * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or 
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
  * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
  * in which case the provisions of the GPL or the LGPL are applicable instead
  * of those above. If you wish to allow use of your version of this file only
@@ -26,7 +26,7 @@
  * the terms of any one of the NPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-/* 
+/*
 * Revision 1.1  2007/08/31 16:14:58  amnond
 * Initial revision
 */
@@ -38,79 +38,79 @@
 
 class PURLPermissions
 {
-	struct tUrl2Auth : public PObject
-	{
-		tUrl2Auth( const PString& strURL, const PString& strAuth )
-		{
-			m_strURL			= strURL;
-			m_strPermissions	= strAuth;
-		}
-		PString m_strURL;
-		PString m_strPermissions;
-	};
+struct tUrl2Auth : public PObject
+    {
+        tUrl2Auth( const PString& strURL, const PString& strAuth )
+        {
+            m_strURL   = strURL;
+            m_strPermissions = strAuth;
+        }
+        PString m_strURL;
+        PString m_strPermissions;
+    };
 
 public:
 
-	void Add( const PString& strURL, const PString& strPermissions )
-	{
-		tUrl2Auth* pAuth = new tUrl2Auth( strURL, strPermissions );
-		m_arPermissions.Append( pAuth );
-	}
+    void Add( const PString& strURL, const PString& strPermissions )
+    {
+        tUrl2Auth* pAuth = new tUrl2Auth( strURL, strPermissions );
+        m_arPermissions.Append( pAuth );
+    }
 
-	bool Find( const PString& strURL, const PString& strLibrary )
-	{
-		PString strSaveAuth	= "";
-		int nMaxLenURLc		= 0;
-		int nLenURL			= strURL.GetSize();
-		int nSize			= m_arPermissions.GetSize();
+    bool Find( const PString& strURL, const PString& strLibrary )
+    {
+        PString strSaveAuth = "";
+        int nMaxLenURLc  = 0;
+        int nLenURL   = strURL.GetSize();
+        int nSize   = m_arPermissions.GetSize();
 
-		for (int i=0; i<nSize; i++)
-		{
-			tUrl2Auth auth  = m_arPermissions[ i ];
-			PString strURLc	= auth.m_strURL;
-			PString strAuth = auth.m_strPermissions;
-			int nLenURLc = strURLc.GetSize();
-			if ( nLenURLc > nLenURL )
-			{
-				continue;
-			}
-			if ( nLenURLc > nMaxLenURLc )
-			{
-				nMaxLenURLc = nLenURLc;
-				strSaveAuth = strAuth;
-			}
-		}
+        for ( int i=0; i<nSize; i++ )
+        {
+            tUrl2Auth auth  = m_arPermissions[ i ];
+            PString strURLc = auth.m_strURL;
+            PString strAuth = auth.m_strPermissions;
+            int nLenURLc = strURLc.GetSize();
+            if ( nLenURLc > nLenURL )
+            {
+                continue;
+            }
+            if ( nLenURLc > nMaxLenURLc )
+            {
+                nMaxLenURLc = nLenURLc;
+                strSaveAuth = strAuth;
+            }
+        }
 
-		PString strLocate = ":" + strLibrary + ":";
-		if ( strSaveAuth.Find( strLocate ) == P_MAX_INDEX &&
-			 strSaveAuth.Find( ":*:" ) == P_MAX_INDEX )
-		{
-			return false;
-		}
+        PString strLocate = ":" + strLibrary + ":";
+        if ( strSaveAuth.Find( strLocate ) == P_MAX_INDEX &&
+                strSaveAuth.Find( ":*:" ) == P_MAX_INDEX )
+        {
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
 private:
-	PArray<tUrl2Auth> m_arPermissions;
+    PArray<tUrl2Auth> m_arPermissions;
 };
 
 class tNativeLogic
 {
 public:
-	bool Init( const PString& strURL, const PString& strPluginsPath );
-	PString InvokeFunction( const PString& strFunction );
+    bool Init( const PString& strURL, const PString& strPluginsPath );
+    PString InvokeFunction( const PString& strFunction );
 
 private:
-	PString GetObjectId( void );
-	PString GetSysErrMsg( void );
+    PString GetObjectId( void );
+    PString GetSysErrMsg( void );
 
 private:
-	PString				m_strPath;
-	PString				m_strURL;
-	PString				m_strUserAgent;
-	PAtomicInteger		m_nObjId;
-	PURLPermissions		m_Permissions;
+    PString          m_strPath;
+    PString          m_strURL;
+    PString          m_strUserAgent;
+    PAtomicInteger   m_nObjId;
+    PURLPermissions  m_Permissions;
 };
 
 #endif
