@@ -9,14 +9,6 @@
 /////////////////////////////////
 
 
-
-// var strRes = Call("CreateObject ClientSocket");
-// extract strObjId from strRes
-// strRes = Call("InvokeMethod " + strObjId + " Connect 127.0.0.1 1320" );
-// strRes = Call("InvokeMethod " + strObjId + " SendLine Hello World!!!" );
-// strRes = Call("InvokeMethod " + strObjId + " Close" );
-// strRes = Call("InvokeMethod " + strObjId + " Dispose" );
-
 const char* szERROR			= "Error ";
 const char* szOK			= "Ok ";
 const char* szDISPOSE		= "Dispose";
@@ -196,7 +188,7 @@ class PWLibProcess : public PProcess
 
 
 PWLibProcess::PWLibProcess()
-  : PProcess("pwlibproc", "jsex",
+  : PProcess("pwlibproc", "jnext",
              1, 1 )
 {
 }

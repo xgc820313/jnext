@@ -108,6 +108,7 @@ private:
 private:
 	PString				m_strPath;
 	PString				m_strURL;
+	PString				m_strUserAgent;
 	PAtomicInteger		m_nObjId;
 	PURLPermissions		m_Permissions;
 };

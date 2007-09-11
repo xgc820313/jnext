@@ -93,7 +93,7 @@ PString FindPluginsPath( void )
 	string strRead			= regStr.read();
 	PString strPluginPath	= strRead;
 	PINDEX nPos				= strPluginPath.FindLast( "\\" );
-	strPluginPath = strPluginPath.Mid( 0, nPos + 1 ) + "js2n\\";
+	strPluginPath = strPluginPath.Mid( 0, nPos + 1 ) + "jnext\\";
 
 	return strPluginPath;
 }

@@ -53,6 +53,7 @@
 
 #ifdef XP_UNIX
 #include <string.h>
+#include "../common/binreloc.h"
 #endif
 
 #include "plugin.h"
@@ -60,10 +61,10 @@
 #include "../common/nativelogic.h"
 
 #define WM_PLUGIN_EVENT	WM_USER + 101
-PString			g_strPageURL	= "";
-NPP				g_pNPInstance	= NULL;				
-NPWindow*		g_pNPWindow		= NULL;
-tNativeLogic	g_NativeLogic;
+PString                 g_strPageURL    = "";
+NPP                     g_pNPInstance   = NULL;				
+NPWindow*               g_pNPWindow     = NULL;
+tNativeLogic            g_NativeLogic;
 
 static NPIdentifier sendCmd_id;
 static NPObject *sWindowObj;
@@ -435,25 +436,25 @@ NPBool CPlugin::init(NPWindow* pNPWindow)
   m_bInitialized	= TRUE;
   g_pNPInstance		= m_pNPInstance;
   g_pNPWindow		= pNPWindow;
-  PString strPluginPath;
+
+  PString strAppPath;
 #ifdef XP_WIN // NPAPI plugin
-	//Get Current Path of exe
-	char szFullFileName[ MAX_PATH ];
-	GetModuleFileName ( GetModuleHandle(NULL), szFullFileName, MAX_PATH ) ;
-	strPluginPath = szFullFileName;
-	PINDEX nPos = strPluginPath.FindLast( "\\" );
-	strPluginPath = strPluginPath.Mid( 0, nPos + 1 ) + "plugins\\js2n\\";
+    //Get Current Path of exe
+    char szFullFileName[ MAX_PATH ];
+    GetModuleFileName ( GetModuleHandle(NULL), szFullFileName, MAX_PATH ) ;
+    strAppPath = szFullFileName;
+    PINDEX nPos = strAppPath.FindLast( "\\" );
+    strAppPath = strAppPath.Mid( 0, nPos ); 
 #else // not Windows - assuming Linux
     BrInitError error;
     if (br_init_lib(&error) == 0 && error != BR_INIT_ERROR_DISABLED)
     {
         printf( "Error - can't init binreloc, code %d\n", error );
     }
-	strPluginPath = br_find_exe_dir("/usr/lib/firefox/plugins/");
-	strPluginPath += "js2n/";
+    strAppPath = br_find_exe_dir("/usr/lib/firefox/");
 #endif
-  g_NativeLogic.Init( g_strPageURL, strPluginPath );
-  return TRUE;
+    g_NativeLogic.Init( g_strPageURL, strAppPath );
+    return TRUE;
 }
 
 bool SendEventToJS( const PString& strEvent )

@@ -70,7 +70,7 @@ class PWLibProcess : public PProcess
 };
 
 PWLibProcess::PWLibProcess()
-  : PProcess("pwlibproc", "js2n",
+  : PProcess("pwlibproc", "jnext",
              1, 1 )
 {
 	// The objects will already be deleted by g_Class2Invoke destructor
@@ -88,27 +88,29 @@ PWLibProcess g_pwlibProcess;
 
 bool tNativeLogic::Init( const PString& strURL, const PString& strPluginsPath )
 {
-	m_strURL = strURL;
-	m_nObjId.SetValue( 0 );
-	m_strPath = strPluginsPath;
-	PTextFile filePermissions;
-	PString strFileName = m_strPath + "auth.txt";
-	if ( filePermissions.Open( strFileName ) )
-	{
-		PString strLine;
-		while ( filePermissions.ReadLine( strLine ) )
-		{
-			PStringArray arParams = strLine.Tokenise( " \t", FALSE );
-			if ( arParams.GetSize() != 2 )
-			{
-				continue;
-			}
-			PString strURL			= arParams[ 0 ];
-			PString strPermissions	= arParams[ 1 ];
-			m_Permissions.Add( strURL, strPermissions );
-		}
-		filePermissions.Close();
-	}
+
+    m_strURL	= strURL;
+    m_strPath	= strPluginsPath;
+    m_strUserAgent  = "";
+    m_nObjId.SetValue( 0 );
+    PTextFile filePermissions;
+    PString strFileName = m_strPath + "auth.txt";
+    if ( filePermissions.Open( strFileName ) )
+    {
+        PString strLine;
+        while ( filePermissions.ReadLine( strLine ) )
+        {
+            PStringArray arParams = strLine.Tokenise( " \t", FALSE );
+            if ( arParams.GetSize() != 2 )
+            {
+                continue;
+            }
+            PString strURL          = arParams[ 0 ];
+            PString strPermissions  = arParams[ 1 ];
+            m_Permissions.Add( strURL, strPermissions );
+        }
+        filePermissions.Close();
+    }
     return TRUE;
 }
 
@@ -168,11 +170,53 @@ PString tNativeLogic::GetSysErrMsg( void )
 	return strError;
 }
 
+#ifdef _WINDOWS
+const PString strSEP = "\\";
+#else
+const PString strSEP = "/";
+#endif
+
 PString tNativeLogic::InvokeFunction( const PString& strFunction )
 {
 	PString strResult = "Ok";
 	PStringArray arParams = strFunction.Tokenise( " " );
 	PString strCommand = arParams[ 0 ];
+	if ( m_strPath.IsEmpty() )
+	{
+		return "Error Application path not set";
+	}
+	
+	if ( m_strUserAgent.IsEmpty() && strCommand == "userAgent" )
+	{
+		int nStart = strCommand.GetLength() + 1;
+		m_strUserAgent = strFunction.Mid( nStart );
+                
+                #ifdef _WINDOWS
+                        
+		m_strPath += strSEP;
+                if ( m_strUserAgent.Find( "Opera" ) != P_MAX_INDEX )
+		{
+			m_strPath += "program" + strSEP + "plugins" + strSEP + "jnext" + strSEP;
+		}
+                else
+                {
+   					m_strPath += "plugins" + strSEP + "jnext" + strSEP;  
+                }
+                    
+                #else
+                        
+				m_strPath += strSEP + "jnext" + strSEP;
+                
+                #endif
+                        
+		return strResult;
+	}
+	else
+	if ( m_strUserAgent.IsEmpty() )
+	{
+		return "Error User agent not set";
+	}
+	
 	if ( strCommand == "Require" )
 	{
 		// Requested use of a JS extension plugin
