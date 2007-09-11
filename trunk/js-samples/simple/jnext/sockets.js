@@ -5,26 +5,26 @@
 function AsyncLineSocket()
 {
     var self = this;
-
     self.connect = function( strAddress, nPort )
 	{
-		var strVal = objJSExt.sendCmd( self.m_strCmd + self.m_strObjId + " Connect " + strAddress + " " + nPort );
+        var strAddr = strAddress + " " + nPort; 
+		var strVal = g_JNEXTDispatcher.invoke( self.m_strObjId, "Connect", strAddr );
 		arParams = strVal.split( " " );
 		return ( arParams[ 0 ] == "Ok" )
     }
 
 	self.sendLine = function( strLine )
 	{
-		var strVal = objJSExt.sendCmd( self.m_strCmd + self.m_strObjId + " SendLine " + strLine );
+		var strVal = g_JNEXTDispatcher.invoke( self.m_strObjId, "SendLine", strLine );
 		arParams = strVal.split( " " );
 		return ( arParams[ 0 ] == "Ok" )
 	}
 	
 	self.close = function()
 	{
-		strRes = objJSExt.sendCmd( self.m_strCmd + self.m_strObjId + " Close" );		
-		strRes = objJSExt.sendCmd( self.m_strCmd + self.m_strObjId + " Dispose" );
-		g_JNEXTeventDispatcher.unregisterEvents( self );
+		strRes = g_JNEXTDispatcher.invoke( self.m_strObjId, "Close" );		
+		strRes = g_JNEXTDispatcher.invoke( self.m_strObjId, "Dispose" );
+		g_JNEXTDispatcher.unregisterEvents( self );
 	}
 		
 	self.onEvent = function( strData )
@@ -61,20 +61,17 @@ function AsyncLineSocket()
 
 	self.init = function()
 	{
-		var strVal = objJSExt.sendCmd( "Require Sockets" );
-		var arParams = strVal.split( " " );
-		if ( arParams[ 0 ] != "Ok" )
+		if ( !g_JNEXTDispatcher.require( "Sockets" ) )
 		{
-			return 0;
+			return false;
 		}
-		strVal = objJSExt.sendCmd( "CreateObject ClientSocket" );
-		arParams = strVal.split( " " );
-		if ( arParams[ 0 ] != "Ok" )
-		{
-			return 0;
-		}
-		self.m_strObjId = arParams[ 1 ];
-		g_JNEXTeventDispatcher.registerEvents( self );
+        self.m_strObjId = g_JNEXTDispatcher.createObject( "ClientSocket" );
+        if ( self.m_strObjId == "" )
+        {
+            alert( "error initializing ClientSocket" );
+            return false;
+        }
+        g_JNEXTDispatcher.registerEvents( self );
 	}
 
 	self.onConnected = function()
@@ -93,6 +90,5 @@ function AsyncLineSocket()
 	}
 	
 	self.m_strObjId = "";
-	self.m_strCmd = "InvokeMethod ";
 	self.init();
 }
