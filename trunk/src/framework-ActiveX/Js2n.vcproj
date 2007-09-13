@@ -71,7 +71,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ptlibsd.lib"
-				OutputFile="$(OutDir)/Js2n.ocx"
+				OutputFile="$(OutDir)/jnext.ocx"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\..\pwlib\lib"
 				ModuleDefinitionFile=".\Js2n.def"
@@ -162,7 +162,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ptlibs.lib"
-				OutputFile="$(OutDir)/Js2n.ocx"
+				OutputFile="$(OutDir)/jnext.ocx"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\pwlib\lib"
 				ModuleDefinitionFile=".\Js2n.def"
