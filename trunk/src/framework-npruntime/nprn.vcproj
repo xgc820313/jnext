@@ -76,7 +76,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib ptlibsd.lib"
-				OutputFile="C:\Program Files\Mozilla Firefox\plugins\nprn.dll"
+				OutputFile="$(OutDir)/npjnext.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\pwlib\lib"
@@ -176,7 +176,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib ptlibs.lib"
-				OutputFile="C:\Program Files\Mozilla Firefox\plugins\nprn.dll"
+				OutputFile="$(OutDir)/npjnext.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\pwlib\lib"

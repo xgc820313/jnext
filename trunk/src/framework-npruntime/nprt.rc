@@ -28,8 +28,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
+ FILEVERSION 1,0,2,0
+ PRODUCTVERSION 1,0,2,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -44,17 +44,17 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "Comments", "\0"
-            VALUE "CompanyName", " \0"
+			VALUE "Comments", "http://jnext.org (MPL 1.1)\0"
+            VALUE "CompanyName", "Optimistec Ltd.\0"
             VALUE "FileDescription", "JNEXT\0"
-            VALUE "FileExtents", "rts\0"
+            VALUE "FileExtents", "foo\0"
             VALUE "FileOpenName", "JNEXT\0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "FileVersion", "1, 0, 2, 0\0"
             VALUE "InternalName", "JNEXT\0"
             VALUE "LegalCopyright", "Copyright Optimistec Ltd. © 2007\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "MIMEType", "application/JNEXT-scriptable-plugin\0"
-            VALUE "OriginalFilename", "nprn.dll\0"
+            VALUE "OriginalFilename", "npjnext.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "JNEXT plugin\0"
             VALUE "ProductVersion", "1, 0, 2, 0\0"
