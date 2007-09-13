@@ -7,12 +7,17 @@ var strHTML;
 
 if (window.ActiveXObject)
 {
-	strHTML = '<object id="objJSExt" width="1" height="1" classid="CLSID:C802F39D-BF85-427a-A334-77E501DB62E9" codebase="Js2n.ocx"></object>';
+	strHTML = '<object id="objJSExt" width="0" height="0" classid="CLSID:C802F39D-BF85-427a-A334-77E501DB62E9" codebase="Js2n.ocx"></object>';
 	strHTML += '<script language="JavaScript" for="objJSExt" EVENT="Js2nEvent( strEvent )">JNEXT_callback_native2js(strEvent)</script>';
 }
 else
 {
-	strHTML = '<embed id="objJSExt" type="application/JNEXT-scriptable-plugin" width="1" height="1">';
+	var strAddSrc = "";
+	if ( navigator.userAgent.indexOf("Safari") != -1 )
+	{
+		strAddSrc = 'src="./safari.foo"';
+	}
+	strHTML = '<embed "' + strAddSrc + ' type="application/JNEXT-scriptable-plugin" width="0" height="0">';
 }
 
 objDiv.innerHTML = strHTML;
