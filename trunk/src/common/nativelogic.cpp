@@ -88,29 +88,10 @@ PWLibProcess g_pwlibProcess;
 
 bool tNativeLogic::Init( const PString& strURL, const PString& strPluginsPath )
 {
-
     m_strURL = strURL;
     m_strPath = strPluginsPath;
     m_strUserAgent  = "";
     m_nObjId.SetValue( 0 );
-    PTextFile filePermissions;
-    PString strFileName = m_strPath + "auth.txt";
-    if ( filePermissions.Open( strFileName ) )
-    {
-        PString strLine;
-        while ( filePermissions.ReadLine( strLine ) )
-        {
-            PStringArray arParams = strLine.Tokenise( " \t", FALSE );
-            if ( arParams.GetSize() != 2 )
-            {
-                continue;
-            }
-            PString strURL          = arParams[ 0 ];
-            PString strPermissions  = arParams[ 1 ];
-            m_Permissions.Add( strURL, strPermissions );
-        }
-        filePermissions.Close();
-    }
     return TRUE;
 }
 
@@ -176,6 +157,30 @@ const PString strSEP = "\\";
 const PString strSEP = "/";
 #endif
 
+bool tNativeLogic::ReadAuthFile( void )
+{
+    PTextFile filePermissions;
+    PString strFileName = m_strPath + "auth.txt";
+    if ( filePermissions.Open( strFileName ) )
+    {
+        PString strLine;
+        while ( filePermissions.ReadLine( strLine ) )
+        {
+            PStringArray arParams = strLine.Tokenise( " \t", FALSE );
+            if ( arParams.GetSize() != 2 )
+            {
+                continue;
+            }
+            PString strURL          = arParams[ 0 ];
+            PString strPermissions  = arParams[ 1 ];
+            m_Permissions.Add( strURL, strPermissions );
+        }
+        filePermissions.Close();
+    }
+
+	return true;
+}
+
 PString tNativeLogic::InvokeFunction( const PString& strFunction )
 {
     PString strResult = "Ok";
@@ -208,7 +213,7 @@ PString tNativeLogic::InvokeFunction( const PString& strFunction )
         m_strPath += strSEP + "jnext" + strSEP;
 
 #endif
-
+		ReadAuthFile();
         return strResult;
     }
     else

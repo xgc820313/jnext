@@ -104,6 +104,7 @@ public:
 private:
     PString GetObjectId( void );
     PString GetSysErrMsg( void );
+	bool	ReadAuthFile( void );
 
 private:
     PString          m_strPath;
