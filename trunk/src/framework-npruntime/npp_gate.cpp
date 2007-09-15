@@ -41,6 +41,7 @@
 // most are just empty stubs for this particular plugin
 //
 
+//#include <stdio.h>
 #include "plugin.h"
 
 char*
@@ -156,29 +157,37 @@ NPError NPP_SetWindow( NPP instance, NPWindow* pNPWindow )
 // in the bin/components folder
 NPError NPP_GetValue( NPP instance, NPPVariable variable, void *value )
 {
-    if ( instance == NULL )
-        return NPERR_INVALID_INSTANCE_ERROR;
-
     NPError rv = NPERR_NO_ERROR;
-
-    if ( instance == NULL )
-        return NPERR_GENERIC_ERROR;
-
+	
+    /*
+    if ( instance == NULL )*
+    {
+		printf( "NPERR_INVALID_INSTANCE_ERROR\n" );
+        return NPERR_INVALID_INSTANCE_ERROR;
+    }
     CPlugin * plugin = ( CPlugin * ) instance->pdata;
     if ( plugin == NULL )
+	{
+		printf( "NPERR_GENERIC_ERROR\n" );
         return NPERR_GENERIC_ERROR;
-
+	}
+    */
     switch ( variable )
     {
         case NPPVpluginNameString:
-            * (( char ** ) value ) = "NPRuntimeTest";
+            * (( char ** ) value ) = "JNEXT Framework";
             break;
         case NPPVpluginDescriptionString:
-            * (( char ** ) value ) = "NPRuntime scriptability API test plugin";
+            * (( char ** ) value ) = "JavaScript to Native Bridge";
             break;
+            /*
         case NPPVpluginScriptableNPObject:
-            * ( NPObject ** ) value = plugin->GetScriptableObject();
-            break;
+			if ( plugin != NULL )
+			{
+				* ( NPObject ** ) value = plugin->GetScriptableObject();
+			}
+			break;
+             */
         default:
             rv = NPERR_GENERIC_ERROR;
     }
