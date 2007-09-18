@@ -46,7 +46,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\gecko-sdk\include,..\..\..\pwlib\include"
+				AdditionalIncludeDirectories=".\gecko-sdk\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;XP_WIN32;MOZILLA_STRICT_API;XPCOM_GLUE;XP_WIN;_X86_;NPSIMPLE_EXPORTS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -75,11 +75,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib ptlibsd.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib"
 				OutputFile="$(OutDir)/npjnext.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\pwlib\lib"
+				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=".\nprn.def"
 				GenerateDebugInformation="true"
@@ -146,7 +146,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				InlineFunctionExpansion="2"
-				AdditionalIncludeDirectories=".\gecko-sdk\include,..\..\..\pwlib\include"
+				AdditionalIncludeDirectories=".\gecko-sdk\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;XP_WIN32;MOZILLA_STRICT_API;XPCOM_GLUE;XP_WIN;_X86_;NPSIMPLE_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -175,11 +175,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib ptlibs.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib"
 				OutputFile="$(OutDir)/npjnext.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\pwlib\lib"
+				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=".\nprn.def"
 				GenerateDebugInformation="true"
@@ -362,6 +362,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="..\common\SharedLib.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -377,6 +381,10 @@
 			</File>
 			<File
 				RelativePath="resource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\common\SharedLib.h"
 				>
 			</File>
 		</Filter>

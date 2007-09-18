@@ -61,7 +61,7 @@
 #include "../common/nativelogic.h"
 
 #define WM_PLUGIN_EVENT WM_USER + 101
-PString                 g_strPageURL    = "";
+string                 g_strPageURL    = "";
 NPP                     g_pNPInstance   = NULL;
 NPWindow*               g_pNPWindow     = NULL;
 tNativeLogic            g_NativeLogic;
@@ -303,7 +303,7 @@ ScriptablePluginObject::Invoke( NPIdentifier name, const NPVariant *args,
             return false;
         }
 
-        PString strParam = "";
+        string strParam = "";
         NPString npStr = NPVARIANT_TO_STRING( args[0] );
         for ( unsigned int i=0; i<npStr.utf8length; i++ )
         {
@@ -311,10 +311,14 @@ ScriptablePluginObject::Invoke( NPIdentifier name, const NPVariant *args,
         }
 
 
-        PString strResult = g_NativeLogic.InvokeFunction( strParam );
+        string strResult = g_NativeLogic.InvokeFunction( strParam );
 
-        char* pszName = ( char* ) NPN_MemAlloc( strResult.GetSize() + 1 );
-        strcpy( pszName, strResult );
+        char* pszName = ( char* ) NPN_MemAlloc( strResult.size() + 1 );
+        if ( pszName == NULL )
+        {
+            return PR_FALSE;
+        }
+        strcpy( pszName, strResult.c_str() );
         STRINGZ_TO_NPVARIANT( pszName, *result );
 
         return PR_TRUE;
@@ -437,14 +441,14 @@ NPBool CPlugin::init( NPWindow* pNPWindow )
     g_pNPInstance  = m_pNPInstance;
     g_pNPWindow  = pNPWindow;
 
-    PString strAppPath;
+    string strAppPath;
 #ifdef XP_WIN // NPAPI plugin
     //Get Current Path of exe
     char szFullFileName[ MAX_PATH ];
     GetModuleFileName( GetModuleHandle( NULL ), szFullFileName, MAX_PATH ) ;
     strAppPath = szFullFileName;
-    PINDEX nPos = strAppPath.FindLast( "\\" );
-    strAppPath = strAppPath.Mid( 0, nPos );
+    int nPos = strAppPath.find_last_of( "\\" );
+    strAppPath = strAppPath.substr( 0, nPos );
 #else // not Windows - assuming Linux
     BrInitError error;
     if ( br_init_lib( &error ) == 0 && error != BR_INIT_ERROR_DISABLED )
@@ -457,7 +461,7 @@ NPBool CPlugin::init( NPWindow* pNPWindow )
     return TRUE;
 }
 
-bool SendEventToJS( const PString& strEvent )
+bool SendEventToJS( const string& strEvent )
 {
     // UF: This might be called from a different thread than the
     // one that created the plugin UI. We should actually post
@@ -467,8 +471,8 @@ bool SendEventToJS( const PString& strEvent )
     // plugin or ActiveX plugin)
 
     // This implementation is specific to NPAPI plugins.
-    PString strJSCall = "javascript:JNEXT_callback_native2js('" + strEvent + "')";
-    return ( NPN_GetURL( g_pNPInstance, strJSCall,"_self" ) == NPERR_NO_ERROR );
+    string strJSCall = "javascript:JNEXT_callback_native2js('" + strEvent + "')";
+    return ( NPN_GetURL( g_pNPInstance, strJSCall.c_str(), "_self" ) == NPERR_NO_ERROR );
 }
 
 void CPlugin::shut()
