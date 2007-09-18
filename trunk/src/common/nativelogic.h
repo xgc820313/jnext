@@ -27,91 +27,94 @@
  *
  * ***** END LICENSE BLOCK ***** */
 /*
-* Revision 1.1  2007/08/31 16:14:58  amnond
+* Revision 1.2  2007/08/31 16:14:58  Amnon David
+*       Removed dependency on PWLib - based everything on STL. Reduced footprint by 500%       
+*
+* Revision 1.1  2007/08/31 16:14:58  Amnon David
 * Initial revision
 */
 
 #ifndef NATIVELOGIC_H
 #define NATIVELOGIC_H
 
-#include <ptlib.h>
+#include "SharedLib.h"
 
-class PURLPermissions
+#include <map>
+#include <string>
+#include <vector>
+using namespace std;
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+class tURLPermissions
 {
-struct tUrl2Auth : public PObject
+	struct tUrl2Auth
     {
-        tUrl2Auth( const PString& strURL, const PString& strAuth )
+        tUrl2Auth( const string& strURL, const string& strAuth )
         {
             m_strURL   = strURL;
             m_strPermissions = strAuth;
         }
-        PString m_strURL;
-        PString m_strPermissions;
+        string m_strURL;
+        string m_strPermissions;
     };
 
 public:
-
-    void Add( const PString& strURL, const PString& strPermissions )
-    {
-        tUrl2Auth* pAuth = new tUrl2Auth( strURL, strPermissions );
-        m_arPermissions.Append( pAuth );
-    }
-
-    bool Find( const PString& strURL, const PString& strLibrary )
-    {
-        PString strSaveAuth = "";
-        int nMaxLenURLc  = 0;
-        int nLenURL   = strURL.GetSize();
-        int nSize   = m_arPermissions.GetSize();
-
-        for ( int i=0; i<nSize; i++ )
-        {
-            tUrl2Auth auth  = m_arPermissions[ i ];
-            PString strURLc = auth.m_strURL;
-            PString strAuth = auth.m_strPermissions;
-            int nLenURLc = strURLc.GetSize();
-            if ( nLenURLc > nLenURL )
-            {
-                continue;
-            }
-            if ( nLenURLc > nMaxLenURLc )
-            {
-                nMaxLenURLc = nLenURLc;
-                strSaveAuth = strAuth;
-            }
-        }
-
-        PString strLocate = ":" + strLibrary + ":";
-        if ( strSaveAuth.Find( strLocate ) == P_MAX_INDEX &&
-                strSaveAuth.Find( ":*:" ) == P_MAX_INDEX )
-        {
-            return false;
-        }
-
-        return true;
-    }
+    void Add( const string& strURL, const string& strPermissions );
+    bool Find( const string& strURL, const string& strLibrary );
 
 private:
-    PArray<tUrl2Auth> m_arPermissions;
+    vector<tUrl2Auth> m_arPermissions;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////
+typedef void ( *SendPluginEv )( const char* szEvent );
+typedef char*( *SetEventFunc )( SendPluginEv funcPtr );
+typedef char*( *InvokeFunc )( const char* szCommand );
+////////////////////////////////////////////////////////////////////////////////////////
+
+class tInvokeMethod
+{
+private:
+    tInvokeMethod( void )
+    {
+    }
+
+public:
+    tInvokeMethod( InvokeFunc pInvokefunc )
+    {
+        m_pInvokeFunc = pInvokefunc;
+    }
+
+    InvokeFunc m_pInvokeFunc;
+};
+////////////////////////////////////////////////////////////////////////////////////////
+
+typedef std::map<string, SharedLib *>		StringToLibMap_T;
+typedef std::map<string, tInvokeMethod *>	StringToMethodMap_T;
 
 class tNativeLogic
 {
 public:
-    bool Init( const PString& strURL, const PString& strPluginsPath );
-    PString InvokeFunction( const PString& strFunction );
+    bool Init( const string& strURL, const string& strPluginsPath );
+    string InvokeFunction( const string& strFunction );
+    ~tNativeLogic();
 
 private:
-    PString GetObjectId( void );
-    PString GetSysErrMsg( void );
-	bool	ReadAuthFile( void );
+    string GetObjectId( void );
+    string GetSysErrMsg( void );
+	bool   ReadAuthFile( void );
+    void   Cleanup( void );
 
 private:
-    PString          m_strPath;
-    PString          m_strURL;
-    PString          m_strUserAgent;
-    PAtomicInteger   m_nObjId;
-    PURLPermissions  m_Permissions;
+    string                  m_strPath;
+    string                  m_strURL;
+    string                  m_strUserAgent;
+    int                     m_nObjId;
+    tURLPermissions	        m_Permissions;
+    StringToLibMap_T		m_File2DynaLink;
+    StringToMethodMap_T     m_Class2Invoke;
+    StringToMethodMap_T		m_ObjID2Invoke;
 };
 
 #endif

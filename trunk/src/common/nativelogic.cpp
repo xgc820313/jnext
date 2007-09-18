@@ -38,15 +38,76 @@
 #include "binreloc.h"
 #endif
 
+#include <stdio.h>
 #include "nativelogic.h"
-#include <ptlib.h>
-#include <ptlib/pprocess.h>
 
-class PInvokeMethod;
+void tokenize(const string& str,const string& delimiters, vector<string>& tokens)
+{
+	// skip delimiters at beginning.
+	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
 
-PDictionary<PString,PDynaLink>  g_File2DynaLink;
-PDictionary<PString,PInvokeMethod> g_Class2Invoke;
-PDictionary<PString,PInvokeMethod> g_ObjID2Invoke;
+	// find first "non-delimiter".
+	string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+	while (string::npos != pos || string::npos != lastPos)
+	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void tURLPermissions::Add( const string& strURL, const string& strPermissions )
+{
+    tUrl2Auth auth( strURL, strPermissions );
+    m_arPermissions.push_back( auth );
+}
+
+bool tURLPermissions::Find( const string& strURL, const string& strLibrary )
+{
+    string strSaveAuth	= "";
+    int nMaxLenURLc		= 0;
+    int nLenURL			= strURL.size();
+    int nSize			= m_arPermissions.size();
+
+    for ( int i=0; i<nSize; i++ )
+    {
+        tUrl2Auth auth	= m_arPermissions[ i ];
+        string strURLc	= auth.m_strURL;
+        string strAuth	= auth.m_strPermissions;
+        int nLenURLc	= strURLc.size();
+        if ( nLenURLc > nLenURL )
+        {
+            continue;
+        }
+        if ( nLenURLc > nMaxLenURLc )
+        {
+            nMaxLenURLc = nLenURLc;
+            strSaveAuth = strAuth;
+        }
+    }
+
+    vector<string> arLibraries;
+	tokenize( strSaveAuth, ",", arLibraries );
+    int nTotal = arLibraries.size();
+    for ( int i=0; i<nTotal; i++ )
+    {
+        string strAuthLib = arLibraries[ i ];
+        if ( strLibrary == strAuthLib || strAuthLib == "*" )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // The implementation of SendEventToJS depends on the method
@@ -54,80 +115,60 @@ PDictionary<PString,PInvokeMethod> g_ObjID2Invoke;
 // implemented as an event via an NPAPI plugin or as an event
 // via ActiveX for Internet Explorer host.
 ////////////////////////////////////////////////////////////////////////////////
-extern bool SendEventToJS( const PString& strEvent );
+extern bool SendEventToJS( const string& strEvent );
 
-////////////////////////////////////////////////////////////////////////////////
-// The following is required in order to use PWLib from within a shared library
-////////////////////////////////////////////////////////////////////////////////
-//______________________________________________________________________________
-class PWLibProcess : public PProcess
-{
-    PCLASSINFO( PWLibProcess, PProcess )
-public:
-    PWLibProcess();
-
-    void Main();
-};
-
-PWLibProcess::PWLibProcess()
-        : PProcess( "pwlibproc", "jnext",
-                    1, 1 )
-{
-    // The objects will already be deleted by g_Class2Invoke destructor
-    g_ObjID2Invoke.DisallowDeleteObjects();
-}
-
-void PWLibProcess::Main()
-{
-    // Empty function
-}
-
-PWLibProcess g_pwlibProcess;
 //______________________________________________________________________________
 ////////////////////////////////////////////////////////////////////////////////
 
-bool tNativeLogic::Init( const PString& strURL, const PString& strPluginsPath )
+bool tNativeLogic::Init( const string& strURL, const string& strPluginsPath )
 {
-    m_strURL = strURL;
-    m_strPath = strPluginsPath;
+    m_strURL		= strURL;
+    m_strPath		= strPluginsPath;
     m_strUserAgent  = "";
-    m_nObjId.SetValue( 0 );
+    m_nObjId		= 0;
     return TRUE;
+}
+
+void tNativeLogic::Cleanup( void )
+{
+    StringToLibMap_T::iterator      posLibs;
+    StringToMethodMap_T::iterator   posClass;
+    StringToMethodMap_T::iterator   posObjId;
+
+    for (posLibs = m_File2DynaLink.begin(); posLibs != m_File2DynaLink.end(); ++posLibs )
+    {
+        posLibs->second->Unload();
+        delete posLibs->second;
+    }
+
+    for (posClass = m_Class2Invoke.begin(); posClass != m_Class2Invoke.end(); ++posClass )
+    {
+        delete posClass->second;
+    }
+    
+    for (posObjId = m_ObjID2Invoke.begin(); posObjId != m_ObjID2Invoke.end(); ++posObjId )
+    {
+        delete posObjId->second;
+    }
+}
+
+tNativeLogic::~tNativeLogic( void )
+{
+    Cleanup();
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 void SendPluginEvent( const char* szEvent )
 {
-    PString strEvent = szEvent;
+    string strEvent = szEvent;
 
     SendEventToJS( strEvent );
 }
-//////////////////////////////////////////////////////////////////////
-typedef void ( *SendPluginEv )( const char* szEvent );
-typedef char*( *SetEventFunc )( SendPluginEv funcPtr );
-typedef char*( *InvokeFunc )( const char* szCommand );
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-class PInvokeMethod : public PObject
+string tNativeLogic::GetSysErrMsg( void )
 {
-private:
-    PInvokeMethod( void )
-    {
-    }
-
-public:
-    PInvokeMethod( InvokeFunc pInvokefunc )
-    {
-        m_pInvokeFunc = pInvokefunc;
-    }
-
-    InvokeFunc m_pInvokeFunc;
-};
-
-PString tNativeLogic::GetSysErrMsg( void )
-{
-    PString strError = "Unknown";
+    string strError = "Unknown";
     // Problem loading
 #ifdef _WINDOWS
     int nErrorCode = GetLastError();
@@ -139,7 +180,9 @@ PString tNativeLogic::GetSysErrMsg( void )
     }
     else
     {
-        strError = psprintf( "Error code %d", nErrorCode );
+        char szBuf[ 20 ];
+        _snprintf_s( szBuf, _countof(szBuf), 19, "%d", nErrorCode );
+        strError = szBuf;
     }
 #else
     char* szError;
@@ -152,54 +195,60 @@ PString tNativeLogic::GetSysErrMsg( void )
 }
 
 #ifdef _WINDOWS
-const PString strSEP = "\\";
+const string strSEP = "\\";
 #else
-const PString strSEP = "/";
+const string strSEP = "/";
 #endif
 
 bool tNativeLogic::ReadAuthFile( void )
 {
-    PTextFile filePermissions;
-    PString strFileName = m_strPath + "auth.txt";
-    if ( filePermissions.Open( strFileName ) )
+    string strFileName = m_strPath + "auth.txt";
+	FILE* fpPermissions;
+    if ( fopen_s( &fpPermissions, strFileName.c_str(), "r" ) != 0 )
     {
-        PString strLine;
-        while ( filePermissions.ReadLine( strLine ) )
+		return false;
+	}
+
+	const int nLINELEN = 150;
+	char szLine[ nLINELEN ];
+	while ( fgets( szLine, nLINELEN, fpPermissions ) )
+	{
+		string strLine = szLine;
+        vector<string> arParams;
+		tokenize( strLine, " \t", arParams );
+		if ( arParams.size() != 2 )
         {
-            PStringArray arParams = strLine.Tokenise( " \t", FALSE );
-            if ( arParams.GetSize() != 2 )
-            {
-                continue;
-            }
-            PString strURL          = arParams[ 0 ];
-            PString strPermissions  = arParams[ 1 ];
-            m_Permissions.Add( strURL, strPermissions );
+            continue;
         }
-        filePermissions.Close();
+        string strURL          = arParams[ 0 ];
+        string strPermissions  = arParams[ 1 ];
+        m_Permissions.Add( strURL, strPermissions );
     }
+    fclose( fpPermissions );
 
 	return true;
 }
 
-PString tNativeLogic::InvokeFunction( const PString& strFunction )
+string tNativeLogic::InvokeFunction( const string& strFunction )
 {
-    PString strResult = "Ok";
-    PStringArray arParams = strFunction.Tokenise( " " );
-    PString strCommand = arParams[ 0 ];
-    if ( m_strPath.IsEmpty() )
+    string strResult = "Ok";
+    vector<string> arParams;
+	tokenize( strFunction, " ", arParams );
+    string strCommand = arParams[ 0 ];
+    if ( m_strPath.empty() )
     {
         return "Error Application path not set";
     }
 
-    if ( m_strUserAgent.IsEmpty() && strCommand == "userAgent" )
+    if ( m_strUserAgent.empty() && strCommand == "userAgent" )
     {
-        int nStart = strCommand.GetLength() + 1;
-        m_strUserAgent = strFunction.Mid( nStart );
+        int nStart = strCommand.size() + 1;
+        m_strUserAgent = strFunction.substr( nStart );
 
 #ifdef XP_WIN
 		// Windows NPAPI
         m_strPath += strSEP;
-        if ( m_strUserAgent.Find( "Opera" ) != P_MAX_INDEX )
+		if ( m_strUserAgent.find( "Opera" ) != string::npos )
         {
             m_strPath += "program" + strSEP + "plugins" + strSEP + "jnext" + strSEP;
         }
@@ -217,7 +266,7 @@ PString tNativeLogic::InvokeFunction( const PString& strFunction )
         return strResult;
     }
     else
-    if ( m_strUserAgent.IsEmpty() )
+    if ( m_strUserAgent.empty() )
     {
         return "Error User agent not set";
     }
@@ -225,113 +274,122 @@ PString tNativeLogic::InvokeFunction( const PString& strFunction )
     if ( strCommand == "Require" )
     {
         // Requested use of a JS extension plugin
-        PString strLibrary = arParams[ 1 ];
+        string strLibrary = arParams[ 1 ];
 
-        if ( g_File2DynaLink.GetAt( strLibrary ) != NULL )
+		StringToLibMap_T::iterator r = m_File2DynaLink.find( strLibrary );
+		if (r != m_File2DynaLink.end())
         {
             // This JS extension plugin has already been loaded
             return strResult;
         }
 
-        if ( m_strURL.Left( 7 ) != "file://" )  // for now assume local files are safe
+        if ( m_strURL.substr( 0, 7 ) != "file://" )  // for now assume local files are safe
         {
             // Check if requests from this URL are allowed to access this library
-            if ( m_Permissions.Find( m_strURL, strLibrary ) )
+            if ( !m_Permissions.Find( m_strURL, strLibrary ) )
             {
                 return "Error No permission to load: " + strLibrary + " for " + m_strURL;;
             }
         }
 
-        PDynaLink* pDynaLink = new PDynaLink();
-        PString strExt = pDynaLink->GetExtension();
+        SharedLib* pSharedLib = new SharedLib();
+        string strExt = pSharedLib->GetLibExt();
 
-        PString strDynaLib = m_strPath + strLibrary + strExt;
-        if ( !pDynaLink->Open( strDynaLib ) )
+        string strDynaLib = m_strPath + strLibrary + strExt;
+        if ( !pSharedLib->Load( strDynaLib ) )
         {
-            delete pDynaLink;
+            delete pSharedLib;
             return "Error Can't find " + strDynaLib + " " + GetSysErrMsg();
         }
 
         // Get the function to set the callback and the receive the list
         // of objects this JS extension supports
         SetEventFunc setEventFunc;
-        if ( !pDynaLink->GetFunction( "SetEventFunc", ( PDynaLink::Function& ) setEventFunc ) )
+        if ( !pSharedLib->GetLibFunc( "SetEventFunc", ( SharedLib::SharedLibFunc& ) setEventFunc ) )
         {
-            delete pDynaLink;
+            delete pSharedLib;
             return "Error Can't find SetEventFunc." + GetSysErrMsg();
         }
 
         // Set the callback function this JS extension plugin can invoke
         // whenever an event is generated
-        PString strObjList = setEventFunc( SendPluginEvent );
+        string strObjList = setEventFunc( SendPluginEvent );
 
         // Get the pointer of the command invocation function for this
         // JS extension plugin
         InvokeFunc invokeFunc;
-        if ( !pDynaLink->GetFunction( "InvokeFunction", ( PDynaLink::Function& ) invokeFunc ) )
+        if ( !pSharedLib->GetLibFunc( "InvokeFunction", ( SharedLib::SharedLibFunc& ) invokeFunc ) )
         {
-            delete pDynaLink;
+            delete pSharedLib;
             return "Error Can't find InvokeFunction:" + GetSysErrMsg();
         }
 
-        // Store the pDynaLink structure in the hash table, when
+        // Store the pSharedLib structure in the hash table, when
         // the hash table will be cleared, all the pointers of
-        // PDynaLink will be deleted, unloading the shared libraries
+        // SharedLib will be deleted, unloading the shared libraries
         // that they represent.
-        g_File2DynaLink.SetAt( strLibrary, pDynaLink );
+
+        m_File2DynaLink.insert(StringToLibMap_T::value_type( strLibrary, pSharedLib ));
 
         // Create an object to store this pointer. This pointer
-        // will be deleted when g_Class2Invoke is cleared or destroyed
+        // will be deleted when m_Class2Invoke is cleared or destroyed
 
-        PInvokeMethod* pInvokeMethod = new PInvokeMethod( invokeFunc );
+        tInvokeMethod* pInvokeMethod = new tInvokeMethod( invokeFunc );
 
-        PStringArray arObjects = strObjList.Tokenise( "," );
-        int nTotal = arObjects.GetSize();
+        vector<string> arObjects;
+		tokenize( strObjList, ",", arObjects );
+        int nTotal = arObjects.size();
         for ( int i=0; i<nTotal; i++ )
         {
-            PString strClassName = arObjects[ i ];
-            g_Class2Invoke.SetAt( strClassName, pInvokeMethod );
+            string strClassName = arObjects[ i ];
+            m_Class2Invoke.insert( StringToMethodMap_T::value_type( strClassName, pInvokeMethod ) );
         }
     }
     else
 	if ( strCommand == "CreateObject" )
 	{
-		PString strClassName = arParams[ 1 ];
-		PInvokeMethod* pInvokeMethod = g_Class2Invoke.GetAt( strClassName );
-		if ( pInvokeMethod == NULL )
+		string strClassName = arParams[ 1 ];
+		StringToMethodMap_T::iterator r = m_Class2Invoke.find( strClassName );
+		if ( r == m_Class2Invoke.end() )
 		{
 			return "Error Can't find " + strClassName;
 		}
-		PString strId = GetObjectId();
-		PString strExtCommand = "CreateObj " + strClassName + " " + strId;
-		PString strVal = pInvokeMethod->m_pInvokeFunc(( const char* ) strExtCommand );
-		if ( strVal.Left( 2 ) != "Ok" )
+		tInvokeMethod* pInvokeMethod = r->second;
+		string strId = GetObjectId();
+		string strExtCommand = "CreateObj " + strClassName + " " + strId;
+        string strVal = pInvokeMethod->m_pInvokeFunc(( const char* ) strExtCommand.c_str() );
+		if ( strVal.substr( 0, 2 ) != "Ok" )
 		{
 			return "Error Can't find method " + strExtCommand;
 		}
 
-		g_ObjID2Invoke.SetAt( strId, pInvokeMethod );
-		PString strRet = "Ok " + strId;
+		m_ObjID2Invoke.insert( StringToMethodMap_T::value_type( strId, pInvokeMethod ) );
+		string strRet = "Ok " + strId;
 		return strRet;
 	}
 	else
 	if ( strCommand == "InvokeMethod" )
 	{
-		PString strObjId = arParams[ 1 ];
-		PInvokeMethod* pInvokeMethod = g_ObjID2Invoke.GetAt( strObjId );
-		if ( pInvokeMethod == NULL )
+		string strObjId = arParams[ 1 ];
+		StringToMethodMap_T::iterator r = m_ObjID2Invoke.find( strObjId );
+		if ( r == m_ObjID2Invoke.end() )
 		{
 			return "Error Can't find object for id " + strObjId;
 		}
-		PString strVal = pInvokeMethod->m_pInvokeFunc(( const char* ) strFunction );
+
+		tInvokeMethod* pInvokeMethod = r->second;
+
+        string strVal = pInvokeMethod->m_pInvokeFunc(( const char* ) strFunction.c_str() );
 		return strVal;
 	}
     return strResult;
 }
 
-PString tNativeLogic::GetObjectId( void )
+string tNativeLogic::GetObjectId( void )
 {
-    PString strObjId;
-    strObjId.sprintf( "%i", ++m_nObjId );
+	const int nMAX = 12;
+	char szBuf[ nMAX ];
+    sprintf_s( szBuf, nMAX, "%d", ++m_nObjId );
+    string strObjId = szBuf;
     return strObjId;
 }
