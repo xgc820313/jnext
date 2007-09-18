@@ -5,6 +5,7 @@
 #ifdef _WINDOWS
 #include <windows.h>
 #else
+#include <dlfcn.h>
 #endif
 
 #include <string>

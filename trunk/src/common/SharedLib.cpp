@@ -118,13 +118,13 @@ bool SharedLib::GetLibFunc( const string & strName, SharedLibFunc & func )
 	void * funcp = dlsym(m_hDLL, (const char *)strName.c_str() );
 	#endif
 
-	if ( p == NULL )
+	if ( funcp == NULL )
 	{
 		return false;
 	}
 	
 	func = (SharedLibFunc)funcp;
-	return TRUE;
+	return true;
 }
 
 string SharedLib::GetSystemError( void )

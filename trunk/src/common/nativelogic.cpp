@@ -124,9 +124,9 @@ bool tNativeLogic::Init( const string& strURL, const string& strPluginsPath )
 {
     m_strURL		= strURL;
     m_strPath		= strPluginsPath;
-    m_strUserAgent  = "";
+    m_strUserAgent      = "";
     m_nObjId		= 0;
-    return TRUE;
+    return true;
 }
 
 void tNativeLogic::Cleanup( void )
@@ -203,20 +203,20 @@ const string strSEP = "/";
 bool tNativeLogic::ReadAuthFile( void )
 {
     string strFileName = m_strPath + "auth.txt";
-	FILE* fpPermissions;
-    if ( fopen_s( &fpPermissions, strFileName.c_str(), "r" ) != 0 )
+    FILE* fpPermissions = fopen( strFileName.c_str(), "r" );
+    if ( fpPermissions == NULL )
     {
-		return false;
-	}
+        return false;
+    }
 
-	const int nLINELEN = 150;
-	char szLine[ nLINELEN ];
-	while ( fgets( szLine, nLINELEN, fpPermissions ) )
-	{
-		string strLine = szLine;
+    const int nLINELEN = 150;
+    char szLine[ nLINELEN ];
+    while ( fgets( szLine, nLINELEN, fpPermissions ) )
+    {
+        string strLine = szLine;
         vector<string> arParams;
-		tokenize( strLine, " \t", arParams );
-		if ( arParams.size() != 2 )
+        tokenize( strLine, " \t", arParams );
+        if ( arParams.size() != 2 )
         {
             continue;
         }
@@ -226,7 +226,7 @@ bool tNativeLogic::ReadAuthFile( void )
     }
     fclose( fpPermissions );
 
-	return true;
+    return true;
 }
 
 string tNativeLogic::InvokeFunction( const string& strFunction )
@@ -387,9 +387,9 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
 
 string tNativeLogic::GetObjectId( void )
 {
-	const int nMAX = 12;
-	char szBuf[ nMAX ];
-    sprintf_s( szBuf, nMAX, "%d", ++m_nObjId );
+    const int nMAX = 20;
+    char szBuf[ nMAX ];
+    sprintf( szBuf, "%d", ++m_nObjId );
     string strObjId = szBuf;
     return strObjId;
 }
