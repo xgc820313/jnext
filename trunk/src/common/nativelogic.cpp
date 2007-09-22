@@ -50,7 +50,7 @@ string& trim( string& str )
     char whspc[] = " \t\r\n\v\f";
 
     // Whack off first part
-    int pos = str.find_first_not_of( whspc );
+    size_t pos = str.find_first_not_of( whspc );
     if( pos != string::npos )
     str.replace( 0, pos, "" );
 
@@ -94,23 +94,23 @@ void tURLPermissions::Add( const string& strURL, const string& strPermissions )
 bool tURLPermissions::Find( const string& strURL, const string& strLibrary )
 {
     string strSaveAuth	= "";
-    int nMaxLenURLc		= 0;
-    int nLenURL			= strURL.size();
-    int nSize			= m_arPermissions.size();
+    size_t nMaxLenURLc		= 0;
+    size_t nLenURL			= strURL.size();
+    size_t nSize			= m_arPermissions.size();
 
-    for ( int i=0; i<nSize; i++ )
+    for ( size_t i=0; i<nSize; i++ )
     {
         tUrl2Auth auth	= m_arPermissions[ i ];
         string strURLc	= auth.m_strURL;
         string strAuth	= auth.m_strPermissions;
         
-        int nPos = strURL.find( strURLc );
+        size_t nPos = strURL.find( strURLc );
         if ( nPos == string::npos || nPos > 0 )
         {
             continue;
         }
 
-        int nLenURLc = strURLc.length();
+        size_t nLenURLc = strURLc.length();
         if ( nLenURLc > nMaxLenURLc )
         {
             nMaxLenURLc = nLenURLc;
@@ -121,8 +121,8 @@ bool tURLPermissions::Find( const string& strURL, const string& strLibrary )
     strSaveAuth = trim( strSaveAuth ); 
     vector<string> arLibraries;
 	tokenize( strSaveAuth, ",", arLibraries );
-    int nTotal = arLibraries.size();
-    for ( int i=0; i<nTotal; i++ )
+    size_t nTotal = arLibraries.size();
+    for ( size_t i=0; i<nTotal; i++ )
     {
         string strAuthLib = arLibraries[ i ];
         if ( strLibrary == strAuthLib || strAuthLib == "*" )
@@ -262,7 +262,7 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
 
     if ( m_strUserAgent.empty() && strCommand == "userAgent" )
     {
-        int nStart = strCommand.size() + 1;
+        size_t nStart = strCommand.size() + 1;
         m_strUserAgent = strFunction.substr( nStart );
 
 #ifdef XP_WIN
@@ -365,8 +365,8 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
 
         vector<string> arObjects;
 		tokenize( strObjList, ",", arObjects );
-        int nTotal = arObjects.size();
-        for ( int i=0; i<nTotal; i++ )
+        size_t nTotal = arObjects.size();
+        for ( size_t i=0; i<nTotal; i++ )
         {
             string strClassName = arObjects[ i ];
             m_Class2Invoke.insert( StringToMethodMap_T::value_type( strClassName, pInvokeMethod ) );

@@ -86,15 +86,17 @@ static const DWORD BASED_CODE _dwJs2nOleMisc =
 
 IMPLEMENT_OLECTLTYPE( CJs2nCtrl, IDS_Js2n, _dwJs2nOleMisc )
 
-PString FindPluginsPath( void )
+CString FindPluginsPath( void )
 {
     CRegString regStr( "CLSID\\{C802F39D-BF85-427A-A334-77E501DB62E9}\\InprocServer32\\", "", FALSE, HKEY_CLASSES_ROOT );
 
-    string strRead   = regStr.read();
-    PString strPluginPath = strRead;
-    PINDEX nPos    = strPluginPath.FindLast( "\\" );
-    strPluginPath = strPluginPath.Mid( 0, nPos );
-
+    CString strRead   = regStr.read();
+    CString strPluginPath = strRead;
+    int nPos    = strPluginPath.ReverseFind( '\\' );
+    if ( nPos != -1 )
+    {
+        strPluginPath = strPluginPath.Left( nPos );
+    }
     return strPluginPath;
 }
 
@@ -171,7 +173,7 @@ LRESULT CJs2nCtrl::OnNativeLogicEvent( WPARAM wParam, LPARAM lParam )
 {
     if ( !m_stringQueue.IsEmpty() )
     {
-        PString strEvent = m_stringQueue.RemoveHead();
+        CString strEvent = m_stringQueue.RemoveHead();
         FireOnEvent( strEvent );
     }
     return 0;
@@ -240,8 +242,10 @@ void CJs2nCtrl::OnSetClientSite()
         {
             if ( SUCCEEDED( ppmk->GetDisplayName( NULL, NULL, &pszDisplayName ) ) )
             {
-                PString strURL(( WORD * ) pszDisplayName );
-                PString strPluginsPath = FindPluginsPath();
+                USES_CONVERSION;
+                CString strName = OLE2CT(pszDisplayName);
+                string strURL = strName;
+                string strPluginsPath = FindPluginsPath();
                 m_NativeLogic.Init( strURL, strPluginsPath );
                 CoTaskMemFree(( LPVOID ) pszDisplayName );
             }
@@ -262,14 +266,15 @@ BSTR CJs2nCtrl::Send( LPCTSTR szCommand )
 
 //___________________________________________________________________________
 
-bool SendEventToJS( const PString& strEvent )
+bool SendEventToJS( const string& strEvent )
 {
     if ( g_pCJs2nCtrl == NULL )
     {
         return false;
     }
 
-    g_pCJs2nCtrl->m_stringQueue.AddTail( strEvent );  // replace this with queue;
+    CString strNewEvent = strEvent.c_str();
+    g_pCJs2nCtrl->m_stringQueue.AddTail( strNewEvent );  // replace this with queue;
     SendMessage( g_pCJs2nCtrl->m_hWnd, WM_NLOGICEVENT, 0, 0 );
 
     //LPDISPATCH pDisp = g_pCjs2nCtrl->GetIDispatch( FALSE );

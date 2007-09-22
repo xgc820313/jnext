@@ -4,7 +4,7 @@
 
 
 // CJs2nCtrl : See Js2nCtrl.cpp for implementation.
-#include <ptlib.h>
+#include <string>
 #include "..\common\nativelogic.h"
 #include "queue.h"
 
@@ -12,7 +12,7 @@ class CJs2nCtrl : public COleControl
 {
     DECLARE_DYNCREATE( CJs2nCtrl )
 
-    friend bool SendEventToJS( const PString& strEvent );
+    friend bool SendEventToJS( const string& strEvent );
 // Constructor
 public:
     CJs2nCtrl();
@@ -62,7 +62,7 @@ public:
 private:
     CString     m_strURL;
     tNativeLogic   m_NativeLogic;
-    Queue<PString>   m_stringQueue;
+    Queue<CString>   m_stringQueue;
     CRITICAL_SECTION  m_lock;
 private:
     LRESULT OnNativeLogicEvent( WPARAM wParam, LPARAM lParam );
