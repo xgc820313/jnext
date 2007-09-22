@@ -41,6 +41,24 @@
 #include <stdio.h>
 #include "nativelogic.h"
 
+string& trim( string& str )
+{
+    // Whitespace characters
+    char whspc[] = " \t\r\n\v\f";
+
+    // Whack off first part
+    int pos = str.find_first_not_of( whspc );
+    if( pos != string::npos )
+    str.replace( 0, pos, "" );
+
+    // Whack off trailing stuff
+    pos = str.find_last_not_of( whspc );
+    if( pos != string::npos )
+    str.replace( pos + 1, str.length() - pos, "" );
+
+    return str;
+}
+
 void tokenize(const string& str,const string& delimiters, vector<string>& tokens)
 {
 	// skip delimiters at beginning.
@@ -82,11 +100,14 @@ bool tURLPermissions::Find( const string& strURL, const string& strLibrary )
         tUrl2Auth auth	= m_arPermissions[ i ];
         string strURLc	= auth.m_strURL;
         string strAuth	= auth.m_strPermissions;
-        int nLenURLc	= strURLc.size();
-        if ( nLenURLc > nLenURL )
+        
+        int nPos = strURL.find( strURLc );
+        if ( nPos == string::npos || nPos > 0 )
         {
             continue;
         }
+
+        int nLenURLc = strURLc.length();
         if ( nLenURLc > nMaxLenURLc )
         {
             nMaxLenURLc = nLenURLc;
@@ -94,6 +115,7 @@ bool tURLPermissions::Find( const string& strURL, const string& strLibrary )
         }
     }
 
+    strSaveAuth = trim( strSaveAuth ); 
     vector<string> arLibraries;
 	tokenize( strSaveAuth, ",", arLibraries );
     int nTotal = arLibraries.size();
@@ -135,20 +157,15 @@ void tNativeLogic::Cleanup( void )
     StringToMethodMap_T::iterator   posClass;
     StringToMethodMap_T::iterator   posObjId;
 
-    for (posLibs = m_File2DynaLink.begin(); posLibs != m_File2DynaLink.end(); ++posLibs )
-    {
-        posLibs->second->Unload();
-        delete posLibs->second;
-    }
-
     for (posClass = m_Class2Invoke.begin(); posClass != m_Class2Invoke.end(); ++posClass )
     {
         delete posClass->second;
     }
     
-    for (posObjId = m_ObjID2Invoke.begin(); posObjId != m_ObjID2Invoke.end(); ++posObjId )
+    for (posLibs = m_File2DynaLink.begin(); posLibs != m_File2DynaLink.end(); ++posLibs )
     {
-        delete posObjId->second;
+        posLibs->second->Unload();
+        delete posLibs->second;
     }
 }
 
@@ -283,6 +300,12 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
             return strResult;
         }
 
+        // Check if requests from this URL are allowed to access this library
+        if ( !m_Permissions.Find( m_strURL, strLibrary ) )
+        {
+            return "Error No permission to load: " + strLibrary + " for " + m_strURL;;
+        }
+        /*
         if ( m_strURL.substr( 0, 7 ) != "file://" )  // for now assume local files are safe
         {
             // Check if requests from this URL are allowed to access this library
@@ -291,6 +314,7 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
                 return "Error No permission to load: " + strLibrary + " for " + m_strURL;;
             }
         }
+        */
 
         SharedLib* pSharedLib = new SharedLib();
         string strExt = pSharedLib->GetLibExt();
