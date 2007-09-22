@@ -27,11 +27,14 @@
  *
  * ***** END LICENSE BLOCK ***** */
 /*
-* Revision 1.1  2007/08/31 16:14:58  amnond
+* Revision 1.0.4  2007/09/22 23:19:45  Amnon David
+* Removed dependancy on PWLib, some bug fixes
+*
+* Revision 1.0.0  2007/08/31 16:14:58  Amnon David
 * Initial revision
 */
 ////////////////////////////////////////////////////////////
-// nativelogic.cpp : js2n framework /  command dispatcher for plugins
+// nativelogic.cpp : JNEXT framework /  command dispatcher for plugins
 //
 
 #ifndef _WINDOWS
