@@ -175,7 +175,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib ptlibsd.lib"
-				OutputFile="c:\Program Files\Mozilla Firefox\plugins\jnext\Sockets.dll"
+				OutputFile="$(OutDir)/Sockets.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\..\pwlib\lib"

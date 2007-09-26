@@ -1,3 +1,29 @@
+/*
+*____________________________________________________________________________
+*
+* FileReader.cpp
+*
+* This is a self contained example that illistrates how to write a JNEXT
+* extension library.
+*
+* This library supports one class, named FileReader that can open a file
+* given a specified path, read lines from that file and close it.
+* 
+* The corresponding JavaScript file that wraps the methods in this 
+* extension is named FileReader.js and the file named FileReader.html
+* shows how a file is read from JavaScript using this extension.
+*
+* To create your own extension, simply include the files plugin.cpp and
+* plugin.h in your project, and create your own class specific implementation
+* following the same guidlines explained in this file.
+*
+*____________________________________________________________________________
+*
+* Revision 1.0  2007/09/26 00:55:00  Amnon David
+*       First release
+*/
+
+
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
@@ -30,33 +56,14 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
- /*
- *%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- * This is a self contained example that illistrates how to write a JNEXT
- * extension library.
- *
- * This library supports one class, named FileReader that can open a file
- * given a specified path and read lines from that file. Finally, the file
- * can be closed. The corresponding JavaScript file that call the methods
- * in this extension is named FileReader.js and the file named FileReader.html
- * shows how a file is read from JavaScript.
- *
- * To create your own extension, simply include the files plugin.cpp and 
- * plugin.h in your project, and create your own class specific implementation
- * in a manner similar to that explained in this file
- *
- *%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- *
- * Revision 1.0  2007/09/26 00:55:00  Amnon David
- *       First release
- */
-
+// Include plugin.h for the common constants, callback and utility functions
+// used by the extension framework
 #include "plugin.h"
 
 /////////////////////////////////////////////////////////////////////////
 // Constants common to FileReader extension
+// When writing your own extension, replace these with your
+// own relevant constants.
 /////////////////////////////////////////////////////////////////////////
 
 // Comma separated list of classes supported by this extension
@@ -80,18 +87,18 @@ const char* szEOF			= "EOF ";       // return in case of end of file
 class FileReader : public JSExt
 {
 public:
-	string InvokeMethod( const string& strCommand ); // Required to implement class methods
+    string InvokeMethod( const string& strCommand ); // Required to implement class methods
     FileReader( const string& strObjId ); // Required to create object and save object id
-	virtual ~FileReader();
+    virtual ~FileReader();
 
 private:
-	void Close( void );
-	void NotifyEvent( const char* szEvent );
+    void Close( void );
+    void NotifyEvent( const char* szEvent );
     FileReader( void );
 
 private:
-	string			m_strObjId; // unique JNEXT id given to this object 
-	FILE*			m_fpFile;   // file handle for FileReader object
+    string			m_strObjId; // unique JNEXT id given to this object
+    FILE*			m_fpFile;   // file handle for FileReader object
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -112,10 +119,10 @@ private:
 
 char* onGetObjList( void )
 {
-    // Return the list of classes known to this plugin
+    // Return a comma separated list of classes known to this plugin
     // in this case it is only "FileReader"
 
-    return (char*)szFILEREADER;  
+    return (char*)szFILEREADER;
 }
 
 JSExt* onCreateObject( const string& strClassName, const string& strObjId )
@@ -123,13 +130,13 @@ JSExt* onCreateObject( const string& strClassName, const string& strObjId )
     // Given a class name and identifier, create the relevant object.
     // In this sample, only the FileReader object is valid
 
-	if ( strClassName != szFILEREADER )
-	{
-		return NULL;
-	}
-	
+    if ( strClassName != szFILEREADER )
+    {
+        return NULL;
+    }
+
     // Object name is valid - return a new object
-	return new FileReader( strObjId );
+    return new FileReader( strObjId );
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -143,7 +150,7 @@ FileReader::FileReader( void )
 FileReader::FileReader( const string& strObjId )
 {
     // Save the object id
-	m_strObjId		= strObjId;
+    m_strObjId		= strObjId;
 
     // Perform any other class specific initializations
     m_fpFile		= NULL;
@@ -156,93 +163,93 @@ FileReader::FileReader( const string& strObjId )
 
 string FileReader::InvokeMethod( const string& strFullCommand )
 {
-	string strRetVal;
+    string strRetVal;
     vector<string> arParams;
-	g_tokenize( strFullCommand, " ", arParams );
-	string strCommand = arParams[ 0 ];
+    g_tokenize( strFullCommand, " ", arParams );
+    string strCommand = arParams[ 0 ];
 
-	if ( strCommand == szOPEN )
-	{
+    if ( strCommand == szOPEN )
+    {
         // FileReader Open method has been requested
-		if ( m_fpFile != NULL )
-		{
-			strRetVal = szERROR + m_strObjId + ":Already opened file";
-			return strRetVal;
-		}
+        if ( m_fpFile != NULL )
+        {
+            strRetVal = szERROR + m_strObjId + ":Already opened file";
+            return strRetVal;
+        }
         string strPath	= strFullCommand.substr( arParams[ 0 ].size()+1 );
         strPath = g_trim( strPath );
 
         // open the file in the first param
         m_fpFile = fopen( strPath.c_str(), "r" );
-		
-		if ( m_fpFile != NULL )
-		{
-			strRetVal = szOK + m_strObjId;
-		}
-		else
-		{
-			strRetVal = szERROR + m_strObjId;
-		}
-	}
-	else
+
+        if ( m_fpFile != NULL )
+        {
+            strRetVal = szOK + m_strObjId;
+        }
+        else
+        {
+            strRetVal = szERROR + m_strObjId;
+        }
+    }
+    else
     if ( strCommand == szGETPATHSEP )
     {
         // Return the path separator for this operating system
         strRetVal = szOK;
-        #ifdef _WINDOWS
+#ifdef _WINDOWS
         strRetVal += "\\";
-        #else
+#else
         strRetVal += "/";
-        #endif
+#endif
     }
-	else
-	if ( m_fpFile == NULL )
-	{
-		strRetVal = szERROR + m_strObjId + ":No file open";
-		return strRetVal;
-	}
-	else
-	if ( strCommand == szCLOSE )
-	{
-        // FileReader Close method has been requested
-		Close();
-		strRetVal = szOK + m_strObjId;
-		return strRetVal;
-	}
     else
-	if ( strCommand == szREADLINE )
-	{
+    if ( m_fpFile == NULL )
+    {
+        strRetVal = szERROR + m_strObjId + ":No file open";
+        return strRetVal;
+    }
+    else
+    if ( strCommand == szCLOSE )
+    {
+        // FileReader Close method has been requested
+        Close();
+        strRetVal = szOK + m_strObjId;
+        return strRetVal;
+    }
+    else
+    if ( strCommand == szREADLINE )
+    {
         // FileReader ReadLine method has been requested
-		const int nMAXBYTES = 255;
-		char szLine[ nMAXBYTES ];
-		char* pLine = fgets( szLine, nMAXBYTES, m_fpFile );
+        const int nMAXBYTES = 255;
+        char szLine[ nMAXBYTES ];
+        char* pLine = fgets( szLine, nMAXBYTES, m_fpFile );
 
-		if ( pLine != NULL )
-		{
-			string strLine = szLine;
-			strRetVal = szOK + strLine;
-		}
-		else
-		{
-			strRetVal = szEOF;
-		}
-	}
-	else
-	{
-		strRetVal = szERROR + m_strObjId + " :Unknown method";
-	}
+        if ( pLine != NULL )
+        {
+            string strLine = szLine;
+            strRetVal = szOK + strLine;
+        }
+        else
+        {
+            strRetVal = szEOF;
+        }
+    }
+    else
+    {
+        strRetVal = szERROR + m_strObjId + " :Unknown method";
+    }
 
-	return strRetVal;
+    return strRetVal;
 }
 
 void FileReader::Close( void )
 {
-	if ( m_fpFile != NULL )
-	{
-		fclose( m_fpFile );
-	}
-	
-	m_fpFile = NULL;
+    if ( m_fpFile != NULL )
+    {
+        fclose( m_fpFile );
+    }
+
+    m_fpFile = NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -254,7 +261,7 @@ void FileReader::Close( void )
 FileReader::~FileReader()
 {
     // Implement any cleanup code here
-	Close();
+    Close();
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -267,8 +274,8 @@ FileReader::~FileReader()
 
 void FileReader::NotifyEvent( const char* szEvent )
 {
-	string strEvent = szEvent;
-	string strFileEvent = m_strObjId + " " + strEvent;
+    string strEvent = szEvent;
+    string strFileEvent = m_strObjId + " " + strEvent;
     SendPluginEvent( strFileEvent.c_str() );
 }
 

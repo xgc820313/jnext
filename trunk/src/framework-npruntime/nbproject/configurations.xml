@@ -11,6 +11,7 @@
       <itemPath>npp_gate.cpp</itemPath>
       <itemPath>nprn.cpp</itemPath>
       <itemPath>plugin.cpp</itemPath>
+      <itemPath>../common/SharedLib.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
@@ -60,6 +61,9 @@
           <commandLine>-fno-rtti -fno-exceptions -lrt</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../common/SharedLib.cpp">
+        <itemTool>1</itemTool>
+      </item>
       <item path="../common/binreloc.c">
         <itemTool>0</itemTool>
       </item>
@@ -119,6 +123,9 @@
           <commandLine>-fno-rtti -fno-exceptions -lrt</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../common/SharedLib.cpp">
+        <itemTool>1</itemTool>
+      </item>
       <item path="../common/binreloc.c">
         <itemTool>0</itemTool>
       </item>

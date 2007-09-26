@@ -28,7 +28,7 @@
  * ***** END LICENSE BLOCK ***** */
 /*
 * Revision 1.2  2007/08/31 16:14:58  Amnon David
-*       Removed dependency on PWLib - based everything on STL. Reduced footprint by 500%       
+*       Removed dependency on PWLib - based everything on STL. Reduced footprint by 500%
 *
 * Revision 1.1  2007/08/31 16:14:58  Amnon David
 * Initial revision
@@ -48,7 +48,7 @@ using namespace std;
 
 class tURLPermissions
 {
-	struct tUrl2Auth
+    struct tUrl2Auth
     {
         tUrl2Auth( const string& strURL, const string& strAuth )
         {
@@ -103,7 +103,7 @@ public:
 private:
     string GetObjectId( void );
     string GetSysErrMsg( void );
-	bool   ReadAuthFile( void );
+    bool   ReadAuthFile( void );
     void   Cleanup( void );
 
 private:

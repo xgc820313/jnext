@@ -158,38 +158,38 @@ NPError NPP_SetWindow( NPP instance, NPWindow* pNPWindow )
 NPError NPP_GetValue( NPP instance, NPPVariable variable, void *value )
 {
     NPError rv = NPERR_NO_ERROR;
-	
+
     /*
     if ( instance == NULL )*
     {
-		printf( "NPERR_INVALID_INSTANCE_ERROR\n" );
+    	printf( "NPERR_INVALID_INSTANCE_ERROR\n" );
         return NPERR_INVALID_INSTANCE_ERROR;
     }
     CPlugin * plugin = ( CPlugin * ) instance->pdata;
     if ( plugin == NULL )
-	{
-		printf( "NPERR_GENERIC_ERROR\n" );
+    {
+    	printf( "NPERR_GENERIC_ERROR\n" );
         return NPERR_GENERIC_ERROR;
-	}
+    }
     */
     switch ( variable )
     {
-        case NPPVpluginNameString:
-            * (( char ** ) value ) = "JNEXT Framework";
-            break;
-        case NPPVpluginDescriptionString:
-            * (( char ** ) value ) = "JavaScript to Native Bridge";
-            break;
-            /*
+    case NPPVpluginNameString:
+        * (( char ** ) value ) = "JNEXT Framework";
+        break;
+    case NPPVpluginDescriptionString:
+        * (( char ** ) value ) = "JavaScript to Native Bridge";
+        break;
+        /*
         case NPPVpluginScriptableNPObject:
-			if ( plugin != NULL )
-			{
-				* ( NPObject ** ) value = plugin->GetScriptableObject();
-			}
-			break;
-             */
-        default:
-            rv = NPERR_GENERIC_ERROR;
+        if ( plugin != NULL )
+        {
+        	* ( NPObject ** ) value = plugin->GetScriptableObject();
+        }
+        break;
+         */
+    default:
+        rv = NPERR_GENERIC_ERROR;
     }
 
     return rv;

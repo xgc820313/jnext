@@ -1,8 +1,6 @@
 #ifndef _PLUGIN_H
 #define _PLUGIN_H
 
-#include <windows.h>
-
 #include <map>
 #include <string>
 #include <vector>
@@ -16,9 +14,9 @@ using namespace std;
 // are mangled C++ style. MS Visual Studio doesn't seem to care though.
 extern "C"
 {
-typedef void (*SendPluginEv)( const char* szEvent );
-char* SetEventFunc(SendPluginEv funcPtr);
-char* InvokeFunction( const char* szCommand );
+    typedef void (*SendPluginEv)( const char* szEvent );
+    char* SetEventFunc(SendPluginEv funcPtr);
+    char* InvokeFunction( const char* szCommand );
 }
 
 // JNEXT Framework function of the form:
@@ -50,7 +48,7 @@ char* g_str2static( const string& strRetVal );
 class JSExt
 {
 public:
-	virtual string InvokeMethod( const string& strCommand ) = 0;
+    virtual string InvokeMethod( const string& strCommand ) = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////

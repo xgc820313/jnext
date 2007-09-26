@@ -576,33 +576,33 @@ static LRESULT CALLBACK PluginWinProc( HWND hWnd, UINT msg, WPARAM wParam, LPARA
 {
     switch ( msg )
     {
-            /*
-             case WM_PAINT:
-               {
-                 // draw a frame and display the string
-                 PAINTSTRUCT ps;
-                 HDC hdc = BeginPaint(hWnd, &ps);
-                 RECT rc;
-                 GetClientRect(hWnd, &rc);
-                 FrameRect(hdc, &rc, (HBRUSH)GetStockObject(BLACK_BRUSH));
-                 CPlugin * p = (CPlugin *)GetWindowLong(hWnd, GWL_USERDATA);
-                 if(p) {
-                   if (p->m_String[0] == 0) {
-                     strcpy("foo", p->m_String);
-                   }
-                     DrawText(hdc, p->m_String, strlen(p->m_String), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
-                 }
-
-                 EndPaint(hWnd, &ps);
+        /*
+         case WM_PAINT:
+           {
+             // draw a frame and display the string
+             PAINTSTRUCT ps;
+             HDC hdc = BeginPaint(hWnd, &ps);
+             RECT rc;
+             GetClientRect(hWnd, &rc);
+             FrameRect(hdc, &rc, (HBRUSH)GetStockObject(BLACK_BRUSH));
+             CPlugin * p = (CPlugin *)GetWindowLong(hWnd, GWL_USERDATA);
+             if(p) {
+               if (p->m_String[0] == 0) {
+                 strcpy("foo", p->m_String);
                }
-               break;
-            */
-        case WM_PLUGIN_EVENT:
-        {
-            break;
-        }
-        default:
-            break;
+                 DrawText(hdc, p->m_String, strlen(p->m_String), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+             }
+
+             EndPaint(hWnd, &ps);
+           }
+           break;
+        */
+    case WM_PLUGIN_EVENT:
+    {
+        break;
+    }
+    default:
+        break;
     }
 
     return DefWindowProc( hWnd, msg, wParam, lParam );

@@ -28,6 +28,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/plugin.o \
 	${OBJECTDIR}/nprn.o \
 	${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common/binreloc.o \
+	${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common/SharedLib.o \
 	${OBJECTDIR}/npp_gate.o \
 	${OBJECTDIR}/npn_gate.o \
 	${OBJECTDIR}/np_entry.o \
@@ -66,6 +67,10 @@ ${OBJECTDIR}/nprn.o: nprn.cpp
 ${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common/binreloc.o: ../common/binreloc.c 
 	${MKDIR} -p ${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common
 	$(COMPILE.c) -O2 -DENABLE_BINRELOC -o ${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common/binreloc.o ../common/binreloc.c
+
+${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common/SharedLib.o: ../common/SharedLib.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common
+	$(COMPILE.cc) -O2 -DENABLE_BINRELOC -DXPCOM_GLUE -DMOZILLA_STRICT_API -DXP_UNIX -DMOZ_X11 -Igecko-sdk/include -I/root/pwlib/include -o ${OBJECTDIR}/_ext/root/jnext/src/framework-npruntime/../common/SharedLib.o ../common/SharedLib.cpp
 
 ${OBJECTDIR}/npp_gate.o: npp_gate.cpp 
 	${MKDIR} -p ${OBJECTDIR}

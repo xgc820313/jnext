@@ -51,36 +51,36 @@ string& trim( string& str )
 
     // Whack off first part
     size_t pos = str.find_first_not_of( whspc );
-    if( pos != string::npos )
-    str.replace( 0, pos, "" );
+    if ( pos != string::npos )
+        str.replace( 0, pos, "" );
 
     // Whack off trailing stuff
     pos = str.find_last_not_of( whspc );
-    if( pos != string::npos )
-    str.replace( pos + 1, str.length() - pos, "" );
+    if ( pos != string::npos )
+        str.replace( pos + 1, str.length() - pos, "" );
 
     return str;
 }
 
 void tokenize(const string& str,const string& delimiters, vector<string>& tokens)
 {
-	// skip delimiters at beginning.
-	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    // skip delimiters at beginning.
+    string::size_type lastPos = str.find_first_not_of(delimiters, 0);
 
-	// find first "non-delimiter".
-	string::size_type pos = str.find_first_of(delimiters, lastPos);
+    // find first "non-delimiter".
+    string::size_type pos = str.find_first_of(delimiters, lastPos);
 
-	while (string::npos != pos || string::npos != lastPos)
-	{
-		// found a token, add it to the vector.
-		tokens.push_back(str.substr(lastPos, pos - lastPos));
+    while (string::npos != pos || string::npos != lastPos)
+    {
+        // found a token, add it to the vector.
+        tokens.push_back(str.substr(lastPos, pos - lastPos));
 
-		// skip delimiters.  Note the "not_of"
-		lastPos = str.find_first_not_of(delimiters, pos);
+        // skip delimiters.  Note the "not_of"
+        lastPos = str.find_first_not_of(delimiters, pos);
 
-		// find next "non-delimiter"
-		pos = str.find_first_of(delimiters, lastPos);
-	}
+        // find next "non-delimiter"
+        pos = str.find_first_of(delimiters, lastPos);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +93,7 @@ void tURLPermissions::Add( const string& strURL, const string& strPermissions )
 
 bool tURLPermissions::Find( const string& strURL, const string& strLibrary )
 {
+    printf( "tURLPermissions::Find %s,%s\n", strURL.c_str(), strLibrary.c_str() );
     string strSaveAuth	= "";
     size_t nMaxLenURLc		= 0;
     size_t nLenURL			= strURL.size();
@@ -103,7 +104,7 @@ bool tURLPermissions::Find( const string& strURL, const string& strLibrary )
         tUrl2Auth auth	= m_arPermissions[ i ];
         string strURLc	= auth.m_strURL;
         string strAuth	= auth.m_strPermissions;
-        
+
         size_t nPos = strURL.find( strURLc );
         if ( nPos == string::npos || nPos > 0 )
         {
@@ -118,9 +119,9 @@ bool tURLPermissions::Find( const string& strURL, const string& strLibrary )
         }
     }
 
-    strSaveAuth = trim( strSaveAuth ); 
+    strSaveAuth = trim( strSaveAuth );
     vector<string> arLibraries;
-	tokenize( strSaveAuth, ",", arLibraries );
+    tokenize( strSaveAuth, ",", arLibraries );
     size_t nTotal = arLibraries.size();
     for ( size_t i=0; i<nTotal; i++ )
     {
@@ -147,6 +148,7 @@ extern bool SendEventToJS( const string& strEvent );
 
 bool tNativeLogic::Init( const string& strURL, const string& strPluginsPath )
 {
+    printf( "tNativeLogic::Init %s,%s\n", strURL.c_str(), strPluginsPath.c_str() );
     m_strURL		= strURL;
     m_strPath		= strPluginsPath;
     m_strUserAgent      = "";
@@ -164,7 +166,7 @@ void tNativeLogic::Cleanup( void )
     {
         delete posClass->second;
     }
-    
+
     for (posLibs = m_File2DynaLink.begin(); posLibs != m_File2DynaLink.end(); ++posLibs )
     {
         posLibs->second->Unload();
@@ -223,6 +225,7 @@ const string strSEP = "/";
 bool tNativeLogic::ReadAuthFile( void )
 {
     string strFileName = m_strPath + "auth.txt";
+    printf( "tNativeLogic::ReadAuthFile %s\n", strFileName.c_str() );
     FILE* fpPermissions = fopen( strFileName.c_str(), "r" );
     if ( fpPermissions == NULL )
     {
@@ -251,9 +254,10 @@ bool tNativeLogic::ReadAuthFile( void )
 
 string tNativeLogic::InvokeFunction( const string& strFunction )
 {
+    printf("tNativeLogic::InvokeFunction %s\n", strFunction.c_str() );
     string strResult = "Ok";
     vector<string> arParams;
-	tokenize( strFunction, " ", arParams );
+    tokenize( strFunction, " ", arParams );
     string strCommand = arParams[ 0 ];
     if ( m_strPath.empty() )
     {
@@ -266,9 +270,9 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
         m_strUserAgent = strFunction.substr( nStart );
 
 #ifdef XP_WIN
-		// Windows NPAPI
+        // Windows NPAPI
         m_strPath += strSEP;
-		if ( m_strUserAgent.find( "Opera" ) != string::npos )
+        if ( m_strUserAgent.find( "Opera" ) != string::npos )
         {
             m_strPath += "program" + strSEP + "plugins" + strSEP + "jnext" + strSEP;
         }
@@ -278,11 +282,11 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
         }
 
 #else
-		// Linux NPAPI or Windows ActiveX
+        // Linux NPAPI or Windows ActiveX
         m_strPath += strSEP + "jnext" + strSEP;
 
 #endif
-		ReadAuthFile();
+        ReadAuthFile();
         return strResult;
     }
     else
@@ -296,8 +300,8 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
         // Requested use of a JS extension plugin
         string strLibrary = arParams[ 1 ];
 
-		StringToLibMap_T::iterator r = m_File2DynaLink.find( strLibrary );
-		if (r != m_File2DynaLink.end())
+        StringToLibMap_T::iterator r = m_File2DynaLink.find( strLibrary );
+        if (r != m_File2DynaLink.end())
         {
             // This JS extension plugin has already been loaded
             return strResult;
@@ -364,7 +368,7 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
         tInvokeMethod* pInvokeMethod = new tInvokeMethod( invokeFunc );
 
         vector<string> arObjects;
-		tokenize( strObjList, ",", arObjects );
+        tokenize( strObjList, ",", arObjects );
         size_t nTotal = arObjects.size();
         for ( size_t i=0; i<nTotal; i++ )
         {
@@ -373,47 +377,48 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
         }
     }
     else
-	if ( strCommand == "CreateObject" )
-	{
-		string strClassName = arParams[ 1 ];
-		StringToMethodMap_T::iterator r = m_Class2Invoke.find( strClassName );
-		if ( r == m_Class2Invoke.end() )
-		{
-			return "Error Can't find " + strClassName;
-		}
-		tInvokeMethod* pInvokeMethod = r->second;
-		string strId = GetObjectId();
-		string strExtCommand = "CreateObj " + strClassName + " " + strId;
+    if ( strCommand == "CreateObject" )
+    {
+        string strClassName = arParams[ 1 ];
+        StringToMethodMap_T::iterator r = m_Class2Invoke.find( strClassName );
+        if ( r == m_Class2Invoke.end() )
+        {
+            return "Error Can't find " + strClassName;
+        }
+        tInvokeMethod* pInvokeMethod = r->second;
+        string strId = GetObjectId();
+        string strExtCommand = "CreateObj " + strClassName + " " + strId;
         string strVal = pInvokeMethod->m_pInvokeFunc(( const char* ) strExtCommand.c_str() );
-		if ( strVal.substr( 0, 2 ) != "Ok" )
-		{
-			return "Error Can't find method " + strExtCommand;
-		}
+        if ( strVal.substr( 0, 2 ) != "Ok" )
+        {
+            return "Error :Can't find method " + strExtCommand + "(" + strVal + ")";
+        }
 
-		m_ObjID2Invoke.insert( StringToMethodMap_T::value_type( strId, pInvokeMethod ) );
-		string strRet = "Ok " + strId;
-		return strRet;
-	}
-	else
-	if ( strCommand == "InvokeMethod" )
-	{
-		string strObjId = arParams[ 1 ];
-		StringToMethodMap_T::iterator r = m_ObjID2Invoke.find( strObjId );
-		if ( r == m_ObjID2Invoke.end() )
-		{
-			return "Error Can't find object for id " + strObjId;
-		}
+        m_ObjID2Invoke.insert( StringToMethodMap_T::value_type( strId, pInvokeMethod ) );
+        string strRet = "Ok " + strId;
+        return strRet;
+    }
+    else
+    if ( strCommand == "InvokeMethod" )
+    {
+        string strObjId = arParams[ 1 ];
+        StringToMethodMap_T::iterator r = m_ObjID2Invoke.find( strObjId );
+        if ( r == m_ObjID2Invoke.end() )
+        {
+            return "Error Can't find object for id " + strObjId;
+        }
 
-		tInvokeMethod* pInvokeMethod = r->second;
+        tInvokeMethod* pInvokeMethod = r->second;
 
         string strVal = pInvokeMethod->m_pInvokeFunc(( const char* ) strFunction.c_str() );
-		return strVal;
-	}
+        return strVal;
+    }
     return strResult;
 }
 
 string tNativeLogic::GetObjectId( void )
 {
+    printf( "tNativeLogic::GetObjectId\n" );
     const int nMAX = 20;
     char szBuf[ nMAX ];
     sprintf( szBuf, "%d", ++m_nObjId );
