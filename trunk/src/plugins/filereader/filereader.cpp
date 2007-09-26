@@ -67,6 +67,7 @@ const char* szFILEREADER	= "FileReader"; // The only class supported by this plu
 const char* szOPEN			= "Open";       // Open a file
 const char* szREADLINE		= "ReadLine";   // Read a line from a file
 const char* szCLOSE			= "Close";      // Close a file
+const char* szGETPATHSEP	= "GetPathSep"; // Get OS Path separator
 
 // constants used by this extension
 const char* szEOF			= "EOF ";       // return in case of end of file
@@ -184,6 +185,17 @@ string FileReader::InvokeMethod( const string& strFullCommand )
 		}
 	}
 	else
+    if ( strCommand == szGETPATHSEP )
+    {
+        // Return the path separator for this operating system
+        strRetVal = szOK;
+        #ifdef _WINDOWS
+        strRetVal += "\\";
+        #else
+        strRetVal += "/";
+        #endif
+    }
+	else
 	if ( m_fpFile == NULL )
 	{
 		strRetVal = szERROR + m_strObjId + ":No file open";
@@ -197,7 +209,7 @@ string FileReader::InvokeMethod( const string& strFullCommand )
 		strRetVal = szOK + m_strObjId;
 		return strRetVal;
 	}
-	else
+    else
 	if ( strCommand == szREADLINE )
 	{
         // FileReader ReadLine method has been requested
@@ -208,11 +220,11 @@ string FileReader::InvokeMethod( const string& strFullCommand )
 		if ( pLine != NULL )
 		{
 			string strLine = szLine;
-			strRetVal = szOK + m_strObjId + " " + strLine;
+			strRetVal = szOK + strLine;
 		}
 		else
 		{
-			strRetVal = szEOF + m_strObjId;
+			strRetVal = szEOF;
 		}
 	}
 	else

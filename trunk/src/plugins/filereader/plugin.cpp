@@ -73,22 +73,14 @@ char* InvokeFunction( const char* szCommand )
 		string strObjId		= arParams[ 2 ];
 		
 		StringToJExt_T::iterator r = g_ID2Obj.find( strObjId );
-		if ( r == g_ID2Obj.end() )
-		{
-            strRetVal += strObjId;
-            strRetVal += " :Error Can't find object.";
-			return g_str2static( strRetVal );
-		}
-
-		JSExt* pJSExt = r->second;
-		if ( pJSExt != NULL )
+		if ( r != g_ID2Obj.end() )
 		{
             strRetVal += strObjId;
             strRetVal += " :Object already exists.";
 			return g_str2static( strRetVal );
 		}
 
-        pJSExt = onCreateObject( strClassName, strObjId );
+		JSExt* pJSExt = onCreateObject( strClassName, strObjId );
 		if ( pJSExt == NULL )
 		{
             strRetVal += strObjId;
