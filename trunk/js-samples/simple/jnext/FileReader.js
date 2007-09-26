@@ -20,10 +20,10 @@ function FileReader()
 		arParams = strVal.split( " " );
 		if ( arParams[ 0 ] == "EOF" )
 		{
-			return 0;
+			return null;
 		}
 		
-		return strVal.substr( 4 );
+		return strVal.substr( 3 );
 	}
 
 	self.getPathSeparator = function()

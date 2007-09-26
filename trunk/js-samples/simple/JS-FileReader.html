@@ -1,4 +1,4 @@
-﻿<HTML>
+<HTML>
 <BODY>
 <script src="jnext/jnext.js"></script>
 <script src="jnext/FileReader.js"></script>
@@ -18,35 +18,39 @@ function test()
 		// Assume Linux
 		strPath = "/etc/fstab";
 	}
-	if ( !myFile.open( strPath ) )
-	{
-		alert( "Error opening " + strPath );
-		return;
-	}
 	
+    var arColors = new Array();
+    arColors[ 0 ] = "eoeoeo";
+    arColors[ 1 ] = "fofofo";
 	var strHTML = "<table>";
-	var arColors = new Array();
-	arColors[ 0 ] = "eoeoeo";
-	arColors[ 1 ] = "fofofo";
 
 	var n = 0;
+    if ( !myFile.open( strPath ) )
+    {
+        alert( "Error opening " + strPath );
+        return;
+    }
+
 	while ( true )
 	{
 		n = 1 - n;
 		var strLine = myFile.readLine();
-		if ( strLine == 0 )
+		if ( strLine == null )
 		{
 			break;
 		}
 		strHTML += "<tr bgcolor='#" + arColors[ n ] + "'><td>";
 		strHTML += strLine + "</td></tr>";
 	}
+
+    myFile.close();
 	strHTML += "</table>";
 	document.getElementById( "id_Output" ).innerHTML = strHTML;
 }
 </script>
 <h3>JNEXT FileReader test</h3>
 <input type=button value="Read File" onclick='test()'>
+<hr/>
 <div id="id_Output"></div>
 </BODY>
 </HTML>

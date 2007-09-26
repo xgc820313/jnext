@@ -17,7 +17,7 @@ else
 	{
 		strAddSrc = 'src="./safari.foo"';
 	}
-	strHTML = '<embed "' + strAddSrc + ' type="application/JNEXT-scriptable-plugin" width="0" height="0">';
+	strHTML = '<embed "' + strAddSrc + ' type="application/JNEXT-scriptable-plugin" width="1" height="1">';
 }
 
 objDiv.innerHTML = strHTML;
