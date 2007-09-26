@@ -104,6 +104,11 @@ function JNEXT_EventDispatcher()
 	self.processEvent = function( strId, strEvent )
 	{
 		var objNotify = self.m_arEvents[ strId ];
+		if ( typeof(objNotify) == 'undefined' )
+		{
+            alert( "Error: Invalid event Id " + strEvent );
+		    return;
+		}
 		objNotify.onEvent( strEvent );
 	}
 }

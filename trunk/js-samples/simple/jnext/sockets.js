@@ -33,6 +33,12 @@ function AsyncLineSocket()
 		var strEventDesc = arData[ 0 ];
 		switch ( strEventDesc )
 		{
+			case "ConnectError":
+			{
+				self.onConnectError();
+				break;
+			}
+			
 			case "Connected":
 			{
 				self.onConnected();
@@ -77,6 +83,11 @@ function AsyncLineSocket()
 	self.onConnected = function()
 	{
 		alert( "onConnected" );
+	}
+	
+	self.onConnectError = function()
+	{
+		alert( "onConnectError" );
 	}
 	
 	self.onLine = function( strLine )
