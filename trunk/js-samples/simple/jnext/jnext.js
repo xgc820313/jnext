@@ -7,7 +7,7 @@ var strHTML;
 
 if (window.ActiveXObject)
 {
-	strHTML = '<object id="objJSExt" width="0" height="0" classid="CLSID:C802F39D-BF85-427a-A334-77E501DB62E9" codebase="Js2n.ocx"></object>';
+	strHTML = '<object id="objJSExt" width="0" height="0" classid="CLSID:C802F39D-BF85-427a-A334-77E501DB62E9" codebase="jnext.ocx"></object>';
 	strHTML += '<script language="JavaScript" for="objJSExt" EVENT="Js2nEvent( strEvent )">JNEXT_callback_native2js(strEvent)</script>';
 }
 else
@@ -106,7 +106,7 @@ function JNEXT_EventDispatcher()
 		var objNotify = self.m_arEvents[ strId ];
 		if ( typeof(objNotify) == 'undefined' )
 		{
-            alert( "Error: Invalid event Id " + strEvent );
+            //alert( "Warning: No object for event Id " + strId + " " + strEvent );
 		    return;
 		}
 		objNotify.onEvent( strEvent );

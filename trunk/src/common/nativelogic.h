@@ -68,9 +68,9 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
-typedef void ( *SendPluginEv )( const char* szEvent );
+typedef void ( *SendPluginEv )( const char* szEvent, void* pContext );
 typedef char*( *SetEventFunc )( SendPluginEv funcPtr );
-typedef char*( *InvokeFunc )( const char* szCommand );
+typedef char*( *InvokeFunc )( const char* szCommand, void* pContext );
 ////////////////////////////////////////////////////////////////////////////////////////
 
 class tInvokeMethod
@@ -96,7 +96,7 @@ typedef std::map<string, tInvokeMethod *>	StringToMethodMap_T;
 class tNativeLogic
 {
 public:
-    bool Init( const string& strURL, const string& strPluginsPath );
+    bool Init( const string& strURL, const string& strPluginsPath, void* pContext );
     string InvokeFunction( const string& strFunction );
     ~tNativeLogic();
 
@@ -112,9 +112,10 @@ private:
     string                  m_strUserAgent;
     int                     m_nObjId;
     tURLPermissions	        m_Permissions;
-    StringToLibMap_T		m_File2DynaLink;
+    StringToLibMap_T		m_LibName2DynaLink;
     StringToMethodMap_T     m_Class2Invoke;
     StringToMethodMap_T		m_ObjID2Invoke;
+    void*                   m_pContext;
 };
 
 #endif

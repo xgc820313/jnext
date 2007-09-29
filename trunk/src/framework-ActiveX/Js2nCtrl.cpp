@@ -149,15 +149,11 @@ BOOL CJs2nCtrl::CJs2nCtrlFactory::UpdateRegistry( BOOL bRegister )
 }
 
 
-
-CJs2nCtrl* g_pCJs2nCtrl = NULL;
-
 // CJs2nCtrl::CJs2nCtrl - Constructor
 CJs2nCtrl::CJs2nCtrl()
 {
     InitializeIIDs( &IID_DJs2n, &IID_DJs2nEvents );
     // TODO: Initialize your control's instance data here.
-    g_pCJs2nCtrl = this;
 }
 
 
@@ -246,7 +242,7 @@ void CJs2nCtrl::OnSetClientSite()
                 CString strName = OLE2CT(pszDisplayName);
                 string strURL = strName;
                 string strPluginsPath = FindPluginsPath();
-                m_NativeLogic.Init( strURL, strPluginsPath );
+                m_NativeLogic.Init( strURL, strPluginsPath, (void*)this );
                 CoTaskMemFree(( LPVOID ) pszDisplayName );
             }
         }
@@ -266,21 +262,23 @@ BSTR CJs2nCtrl::Send( LPCTSTR szCommand )
 
 //___________________________________________________________________________
 
-bool SendEventToJS( const string& strEvent )
+bool SendEventToJS( const string& strEvent, void* pContext )
 {
-    if ( g_pCJs2nCtrl == NULL )
+    if ( pContext == NULL )
     {
         return false;
     }
 
+    CJs2nCtrl* pCJs2nCtrl = (CJs2nCtrl*)pContext;
+
     CString strNewEvent = strEvent.c_str();
-    g_pCJs2nCtrl->m_stringQueue.AddTail( strNewEvent );  // replace this with queue;
-    SendMessage( g_pCJs2nCtrl->m_hWnd, WM_NLOGICEVENT, 0, 0 );
+    pCJs2nCtrl->m_stringQueue.AddTail( strNewEvent );  // replace this with queue;
+    SendMessage( pCJs2nCtrl->m_hWnd, WM_NLOGICEVENT, 0, 0 );
 
     //LPDISPATCH pDisp = g_pCjs2nCtrl->GetIDispatch( FALSE );
     /*
     LPDISPATCH pDisp;
-    g_pCjs2nCtrl->get_accParent( &pDisp );
+    pCjs2nCtrl->get_accParent( &pDisp );
     CWebPage page;
     page.SetDocument( pDisp );
     string strEvent1 = strEvent;

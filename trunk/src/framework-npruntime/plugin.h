@@ -40,6 +40,10 @@
 
 #include "npapi.h"
 #include "npruntime.h"
+#include "../common/nativelogic.h"
+#include <string>
+
+using namespace std;
 
 class CPlugin
 {
@@ -57,6 +61,9 @@ private:
 
     NPObject *m_pScriptableObject;
 
+    string          m_strPageURL;
+    tNativeLogic    m_NativeLogic;
+
 public:
     char m_String[128];
 
@@ -73,6 +80,8 @@ public:
     void showVersion();
     void clear();
     void getVersion( char* *aVersion );
+
+    string InvokeFunction( const string& strFunction );
 
     NPObject *GetScriptableObject();
 };

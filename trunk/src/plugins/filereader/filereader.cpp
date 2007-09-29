@@ -58,7 +58,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Include plugin.h for the common constants, callback and utility functions
 // used by the extension framework
-#include "plugin.h"
+#include "../common/plugin.h"
 
 /////////////////////////////////////////////////////////////////////////
 // Constants common to FileReader extension
@@ -89,6 +89,7 @@ class FileReader : public JSExt
 public:
     string InvokeMethod( const string& strCommand ); // Required to implement class methods
     FileReader( const string& strObjId ); // Required to create object and save object id
+    bool CanDelete( void ); // Indicate whether object can be deleted by framework
     virtual ~FileReader();
 
 private:
@@ -154,6 +155,12 @@ FileReader::FileReader( const string& strObjId )
 
     // Perform any other class specific initializations
     m_fpFile		= NULL;
+}
+
+bool FileReader::CanDelete( void )
+{
+    // This object can be deleted by plugin framework
+    return true;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -276,6 +283,6 @@ void FileReader::NotifyEvent( const char* szEvent )
 {
     string strEvent = szEvent;
     string strFileEvent = m_strObjId + " " + strEvent;
-    SendPluginEvent( strFileEvent.c_str() );
+    SendPluginEvent( strFileEvent.c_str(), m_pContext );
 }
 

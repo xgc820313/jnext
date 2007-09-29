@@ -219,6 +219,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath="..\common\plugin.cpp"
+				>
+			</File>
+			<File
 				RelativePath="sockets.cpp"
 				>
 				<FileConfiguration
@@ -253,6 +257,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath="..\common\plugin.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

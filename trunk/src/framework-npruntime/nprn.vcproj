@@ -362,6 +362,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="..\common\SharedLib.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

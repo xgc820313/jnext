@@ -61,10 +61,6 @@
 #include "../common/nativelogic.h"
 
 #define WM_PLUGIN_EVENT WM_USER + 101
-string                 g_strPageURL    = "";
-NPP                     g_pNPInstance   = NULL;
-NPWindow*               g_pNPWindow     = NULL;
-tNativeLogic            g_NativeLogic;
 
 static NPIdentifier sendCmd_id;
 static NPObject *sWindowObj;
@@ -268,6 +264,7 @@ public:
     ScriptablePluginObject( NPP npp )
             : ScriptablePluginObjectBase( npp )
     {
+        m_pPlugin = NULL;
     }
 
     virtual bool HasMethod( NPIdentifier name );
@@ -275,6 +272,13 @@ public:
                          uint32_t argCount, NPVariant *result );
     virtual bool InvokeDefault( const NPVariant *args, uint32_t argCount,
                                 NPVariant *result );
+
+    void SetPlugin( CPlugin* pPlugin )
+    {
+        m_pPlugin = pPlugin;
+    }
+
+    CPlugin* m_pPlugin;
 };
 
 static NPObject *
@@ -311,7 +315,7 @@ ScriptablePluginObject::Invoke( NPIdentifier name, const NPVariant *args,
         }
 
 
-        string strResult = g_NativeLogic.InvokeFunction( strParam );
+        string strResult = m_pPlugin->InvokeFunction( strParam );
 
         char* pszName = ( char* ) NPN_MemAlloc( strResult.size() + 1 );
         if ( pszName == NULL )
@@ -391,11 +395,11 @@ CPlugin::CPlugin( NPP pNPInstance ) :
     identifier = NPN_GetStringIdentifier( "href" );
     // Get the location property from the location object.
     bool b2 = NPN_GetProperty( m_pNPInstance, locationObj, identifier, &variantValue );
-    g_strPageURL = "";
+    m_strPageURL = "";
     NPString npStr = NPVARIANT_TO_STRING( variantValue );
     for ( unsigned int i=0; i<npStr.utf8length; i++ )
     {
-        g_strPageURL += npStr.utf8characters[ i ];
+        m_strPageURL += npStr.utf8characters[ i ];
     }
 
     NPN_ReleaseObject( locationObj );
@@ -438,8 +442,6 @@ NPBool CPlugin::init( NPWindow* pNPWindow )
     m_Window = pNPWindow;
 
     m_bInitialized = TRUE;
-    g_pNPInstance  = m_pNPInstance;
-    g_pNPWindow  = pNPWindow;
 
     string strAppPath;
 #ifdef XP_WIN // NPAPI plugin
@@ -457,11 +459,11 @@ NPBool CPlugin::init( NPWindow* pNPWindow )
     }
     strAppPath = br_find_exe_dir( "/usr/lib/firefox/" );
 #endif
-    g_NativeLogic.Init( g_strPageURL, strAppPath );
+    m_NativeLogic.Init( m_strPageURL, strAppPath, (void*)m_pNPInstance );
     return TRUE;
 }
 
-bool SendEventToJS( const string& strEvent )
+bool SendEventToJS( const string& strEvent, void* pContext )
 {
     // UF: This might be called from a different thread than the
     // one that created the plugin UI. We should actually post
@@ -471,8 +473,14 @@ bool SendEventToJS( const string& strEvent )
     // plugin or ActiveX plugin)
 
     // This implementation is specific to NPAPI plugins.
+    NPP pNPInstance = (NPP)pContext;
     string strJSCall = "javascript:JNEXT_callback_native2js('" + strEvent + "')";
-    return ( NPN_GetURL( g_pNPInstance, strJSCall.c_str(), "_self" ) == NPERR_NO_ERROR );
+    return ( NPN_GetURL( pNPInstance, strJSCall.c_str(), "_self" ) == NPERR_NO_ERROR );
+}
+
+string CPlugin::InvokeFunction( const string& strFunction )
+{
+    return m_NativeLogic.InvokeFunction( strFunction );
 }
 
 void CPlugin::shut()
@@ -568,6 +576,8 @@ CPlugin::GetScriptableObject()
         NPN_RetainObject( m_pScriptableObject );
     }
 
+    ScriptablePluginObject* pObj = (ScriptablePluginObject*)m_pScriptableObject;
+    pObj->SetPlugin( this );
     return m_pScriptableObject;
 }
 

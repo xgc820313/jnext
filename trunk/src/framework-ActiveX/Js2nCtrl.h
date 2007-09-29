@@ -12,7 +12,7 @@ class CJs2nCtrl : public COleControl
 {
     DECLARE_DYNCREATE( CJs2nCtrl )
 
-    friend bool SendEventToJS( const string& strEvent );
+    friend bool SendEventToJS( const string& strEvent, void* pContext );
 // Constructor
 public:
     CJs2nCtrl();
@@ -60,10 +60,12 @@ public:
     };
 
 private:
-    CString     m_strURL;
-    tNativeLogic   m_NativeLogic;
-    Queue<CString>   m_stringQueue;
-    CRITICAL_SECTION  m_lock;
+    CString             m_strURL;
+    Queue<CString>      m_stringQueue;
+    CRITICAL_SECTION    m_lock;
+    tNativeLogic        m_NativeLogic;
+
 private:
     LRESULT OnNativeLogicEvent( WPARAM wParam, LPARAM lParam );
 };
+

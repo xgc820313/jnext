@@ -175,7 +175,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib ptlibsd.lib"
-				OutputFile="c:\Program Files\Mozilla Firefox\plugins\jnext\filereader.dll"
+				OutputFile="$(OutDir)/filereader.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\..\pwlib\lib"
@@ -249,24 +249,8 @@
 				>
 			</File>
 			<File
-				RelativePath=".\plugin.cpp"
+				RelativePath="..\common\plugin.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-					/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -274,7 +258,7 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath=".\plugin.h"
+				RelativePath="..\common\plugin.h"
 				>
 			</File>
 		</Filter>

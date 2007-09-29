@@ -141,18 +141,19 @@ bool tURLPermissions::Find( const string& strURL, const string& strLibrary )
 // implemented as an event via an NPAPI plugin or as an event
 // via ActiveX for Internet Explorer host.
 ////////////////////////////////////////////////////////////////////////////////
-extern bool SendEventToJS( const string& strEvent );
+extern bool SendEventToJS( const string& strEvent, void* pContext );
 
 //______________________________________________________________________________
 ////////////////////////////////////////////////////////////////////////////////
 
-bool tNativeLogic::Init( const string& strURL, const string& strPluginsPath )
+bool tNativeLogic::Init( const string& strURL, const string& strPluginsPath, void* pContext )
 {
     printf( "tNativeLogic::Init %s,%s\n", strURL.c_str(), strPluginsPath.c_str() );
     m_strURL		= strURL;
     m_strPath		= strPluginsPath;
-    m_strUserAgent      = "";
+    m_strUserAgent  = "";
     m_nObjId		= 0;
+    m_pContext      = pContext;
     return true;
 }
 
@@ -167,7 +168,7 @@ void tNativeLogic::Cleanup( void )
         delete posClass->second;
     }
 
-    for (posLibs = m_File2DynaLink.begin(); posLibs != m_File2DynaLink.end(); ++posLibs )
+    for (posLibs = m_LibName2DynaLink.begin(); posLibs != m_LibName2DynaLink.end(); ++posLibs )
     {
         posLibs->second->Unload();
         delete posLibs->second;
@@ -181,11 +182,11 @@ tNativeLogic::~tNativeLogic( void )
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-void SendPluginEvent( const char* szEvent )
+void SendPluginEvent( const char* szEvent, void* pContext )
 {
     string strEvent = szEvent;
 
-    SendEventToJS( strEvent );
+    SendEventToJS( strEvent, pContext );
 }
 
 string tNativeLogic::GetSysErrMsg( void )
@@ -300,8 +301,8 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
         // Requested use of a JS extension plugin
         string strLibrary = arParams[ 1 ];
 
-        StringToLibMap_T::iterator r = m_File2DynaLink.find( strLibrary );
-        if (r != m_File2DynaLink.end())
+        StringToLibMap_T::iterator r = m_LibName2DynaLink.find( strLibrary );
+        if (r != m_LibName2DynaLink.end())
         {
             // This JS extension plugin has already been loaded
             return strResult;
@@ -312,16 +313,6 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
         {
             return "Error No permission to load: " + strLibrary + " for " + m_strURL;;
         }
-        /*
-        if ( m_strURL.substr( 0, 7 ) != "file://" )  // for now assume local files are safe
-        {
-            // Check if requests from this URL are allowed to access this library
-            if ( !m_Permissions.Find( m_strURL, strLibrary ) )
-            {
-                return "Error No permission to load: " + strLibrary + " for " + m_strURL;;
-            }
-        }
-        */
 
         SharedLib* pSharedLib = new SharedLib();
         string strExt = pSharedLib->GetLibExt();
@@ -360,7 +351,7 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
         // SharedLib will be deleted, unloading the shared libraries
         // that they represent.
 
-        m_File2DynaLink.insert(StringToLibMap_T::value_type( strLibrary, pSharedLib ));
+        m_LibName2DynaLink.insert(StringToLibMap_T::value_type( strLibrary, pSharedLib ));
 
         // Create an object to store this pointer. This pointer
         // will be deleted when m_Class2Invoke is cleared or destroyed
@@ -388,7 +379,7 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
         tInvokeMethod* pInvokeMethod = r->second;
         string strId = GetObjectId();
         string strExtCommand = "CreateObj " + strClassName + " " + strId;
-        string strVal = pInvokeMethod->m_pInvokeFunc(( const char* ) strExtCommand.c_str() );
+        string strVal = pInvokeMethod->m_pInvokeFunc(( const char* ) strExtCommand.c_str(), m_pContext );
         if ( strVal.substr( 0, 2 ) != "Ok" )
         {
             return "Error :Can't find method " + strExtCommand + "(" + strVal + ")";
@@ -410,7 +401,7 @@ string tNativeLogic::InvokeFunction( const string& strFunction )
 
         tInvokeMethod* pInvokeMethod = r->second;
 
-        string strVal = pInvokeMethod->m_pInvokeFunc(( const char* ) strFunction.c_str() );
+        string strVal = pInvokeMethod->m_pInvokeFunc(( const char* ) strFunction.c_str(), m_pContext );
         return strVal;
     }
     return strResult;

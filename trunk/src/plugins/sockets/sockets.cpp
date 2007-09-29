@@ -1,5 +1,6 @@
 // sockets.cpp : Defines the entry point for the DLL application.
 //
+
 #include <ptlib.h>
 /////////////////////////////////
 // For SocketClient
@@ -8,23 +9,13 @@
 #include <ptlib/tcpsock.h>
 /////////////////////////////////
 
-
-const char* szERROR			= "Error ";
-const char* szOK			= "Ok ";
-const char* szDISPOSE		= "Dispose";
-const char* szINVOKE		= "InvokeMethod";
-const char* szCREATE		= "CreateObj";
+#include "../common/plugin.h"
 
 const char* szCLIENTSOCK	= "ClientSocket";
+
 const char* szSENDLINE		= "SendLine";
 const char* szCONNECT		= "Connect";
 const char* szCLOSE			= "Close";
-
-class JSExt : public PObject
-{
-public:
-    virtual PString InvokeMethod( const PString& strCommand ) = 0;
-};
 
 class ClientSocketThread : public PThread, public JSExt
 {
@@ -37,7 +28,12 @@ class ClientSocketThread : public PThread, public JSExt
     PCLASSINFO(ClientSocketThread, PThread);
 
 public:
-    PString InvokeMethod( const PString& strCommand );
+    string InvokeMethod( const string& strCommand );
+    bool CanDelete( void )
+    {
+        return false; // Thread deletes itself when complete
+    }
+
     ClientSocketThread( PString strObjId );
     bool Connect( const PString& strAddr, WORD wPort );
     bool WriteLine( PString strLine );
@@ -64,118 +60,28 @@ private:
     PString			m_strRemoteAddr;
 };
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%% Functions exported by this DLL
-//%% Should always be only SetEventFunc and InvokeFunction
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-// g++ requires extern "C" otherwise the names of SetEventFunc and InvokeFunction
-// are mangled C++ style. MS Visual Studio doesn't seem to care though.
-extern "C"
+char* onGetObjList( void )
 {
-    typedef void (*SendPluginEv)( const char* szEvent );
-    SendPluginEv SendPluginEvent;
-    char* SetEventFunc(SendPluginEv funcPtr);
-    char* InvokeFunction( const char* szCommand );
+    return (char*)szCLIENTSOCK;
 }
 
-char* SetEventFunc(SendPluginEv funcPtr)
+JSExt* onCreateObject( const string& strClassName, const string& strObjId )
 {
-    static char* szObjList = (char*)szCLIENTSOCK;
-    SendPluginEvent = funcPtr;
-    return szObjList;
-}
+    // Given a class name and identifier, create the relevant object.
+    // In this sample, only the FileReader object is valid
 
-char						g_szRetVal[ 512 ];
-PMutex						g_invokeMutex;
-PDictionary<PString,JSExt>	g_ID2Obj;
-
-char* InvokeFunction( const char* szCommand )
-{
-    PWaitAndSignal m( g_invokeMutex );
-    PString strFullCommand = szCommand;
-    PStringArray arParams = strFullCommand.Tokenise( " " );
-    PString strCommand	= arParams[ 0 ];
-    if ( strCommand == szCREATE )
+    if ( strClassName != szCLIENTSOCK )
     {
-        PString strClassName	= arParams[ 1 ];
-        PString strObjId		= arParams[ 2 ];
-        JSExt* pJSExt = (JSExt*)g_ID2Obj.GetAt( strObjId );
-        if ( pJSExt != NULL )
-        {
-            strcpy( g_szRetVal, szERROR );
-            strcat( g_szRetVal, strObjId );
-            strcat( g_szRetVal, " :Object already exists." );
-            return g_szRetVal;
-        }
-        if ( strClassName == szCLIENTSOCK )
-        {
-            pJSExt = new ClientSocketThread( strObjId );
-        }
-        else
-        {
-            strcpy( g_szRetVal, szERROR );
-            strcat( g_szRetVal, strClassName );
-            strcat( g_szRetVal, " :Unknown object type." );
-            return g_szRetVal;
-        }
-
-        g_ID2Obj.SetAt( strObjId, pJSExt );
-        strcpy( g_szRetVal, szOK );
-        strcat( g_szRetVal, strObjId );
-        return g_szRetVal;
-    }
-    else
-    if ( strCommand == szINVOKE )
-    {
-        PString strObjId		= arParams[ 1 ];
-        PString strMethod		= arParams[ 2 ];
-
-        JSExt* pJSExt = (JSExt*)g_ID2Obj.GetAt( strObjId );
-        if ( pJSExt == NULL )
-        {
-            strcpy( g_szRetVal, szERROR );
-            strcat( g_szRetVal, strObjId );
-            strcat( g_szRetVal, " :No object found for id." );
-            return g_szRetVal;
-        }
-
-        PINDEX nLoc = strFullCommand.Find( strObjId );
-        if ( nLoc == P_MAX_INDEX )
-        {
-            strcpy( g_szRetVal, szERROR );
-            strcat( g_szRetVal, strObjId );
-            strcat( g_szRetVal, " :Internal InvokeMethod error" );
-            return g_szRetVal;
-        }
-
-        if ( strMethod == szDISPOSE )
-        {
-            g_ID2Obj.RemoveAt( strObjId );
-            strcpy( g_szRetVal, szOK );
-            strcat( g_szRetVal, strObjId );
-            return g_szRetVal;
-        }
-
-        int nSuffixLoc = nLoc + strObjId.GetLength();
-        PString strInvoke = strFullCommand.Mid( nSuffixLoc ).LeftTrim();
-        PString strRetVal = pJSExt->InvokeMethod( strInvoke );
-        strcpy( g_szRetVal, strRetVal );
-        return g_szRetVal;
+        return NULL;
     }
 
-    strcpy( g_szRetVal, szERROR );
-    strcat( g_szRetVal, strCommand );
-    strcat( g_szRetVal, " :Unknown command" );
-    return g_szRetVal;
+    // Object name is valid - return a new object
+    return new ClientSocketThread( strObjId );
 }
 
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 class PWLibProcess : public PProcess
 {
     PCLASSINFO(PWLibProcess, PProcess)
@@ -184,7 +90,6 @@ public:
 
     void Main();
 };
-
 
 
 PWLibProcess::PWLibProcess()
@@ -200,18 +105,6 @@ void PWLibProcess::Main()
 
 PWLibProcess g_pwlibProcess;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-#ifdef _WINDOWS
-BOOL APIENTRY DllMain( HANDLE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved )
-{
-    return TRUE;
-}
-#endif
-
-/////////////////////////////////////////////////////
-
 
 ClientSocketThread::ClientSocketThread( void )
         : PThread(1000,NoAutoDeleteThread)
@@ -229,8 +122,9 @@ ClientSocketThread::ClientSocketThread( PString strObjId )
     Resume(); // start running this thread as soon as the thread is created.
 }
 
-PString ClientSocketThread::InvokeMethod( const PString& strFullCommand )
+string ClientSocketThread::InvokeMethod( const string& strSentCommand )
 {
+    PString strFullCommand = strSentCommand;
     PString strRetVal;
     PStringArray arParams	= strFullCommand.Tokenise( " " );
     PString strCommand		= arParams[ 0 ];
@@ -372,7 +266,7 @@ void ClientSocketThread::NotifySocketEvent( const char* szEvent )
 {
     PString strEvent = szEvent;
     PString strSockEvent = m_strObjId + " " + strEvent;
-    SendPluginEvent( (const char *)strSockEvent );
+    SendPluginEvent( (const char *)strSockEvent, m_pContext );
 }
 
 void ClientSocketThread::Main()
