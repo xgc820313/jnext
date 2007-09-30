@@ -25,7 +25,8 @@ OBJECTDIR=build/Release/GNU-Linux-x86
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/sockets.o
+	${OBJECTDIR}/sockets.o \
+	${OBJECTDIR}/_ext/root/jnext/src/plugins/sockets/../common/plugin.o
 
 # C Compiler Flags
 CFLAGS=
@@ -52,6 +53,10 @@ LDLIBSOPTIONS=\
 ${OBJECTDIR}/sockets.o: sockets.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	$(COMPILE.cc) -O2 -s -I/root/pwlib/include -o ${OBJECTDIR}/sockets.o sockets.cpp
+
+${OBJECTDIR}/_ext/root/jnext/src/plugins/sockets/../common/plugin.o: ../common/plugin.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/root/jnext/src/plugins/sockets/../common
+	$(COMPILE.cc) -O2 -s -I/root/pwlib/include -o ${OBJECTDIR}/_ext/root/jnext/src/plugins/sockets/../common/plugin.o ../common/plugin.cpp
 
 # Subprojects
 .build-subprojects:

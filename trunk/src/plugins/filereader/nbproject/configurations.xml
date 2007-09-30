@@ -5,7 +5,7 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>filereader.cpp</itemPath>
-      <itemPath>plugin.cpp</itemPath>
+      <itemPath>../common/plugin.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
@@ -43,10 +43,10 @@
           <commandLine>-fno-rtti -fno-exceptions -rdynamic -lrt</commandLine>
         </linkerTool>
       </compileType>
-      <item path="filereader.cpp">
+      <item path="../common/plugin.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="plugin.cpp">
+      <item path="filereader.cpp">
         <itemTool>1</itemTool>
       </item>
     </conf>
@@ -76,10 +76,10 @@
           <commandLine>-fno-rtti -fno-exceptions -rdynamic -lrt</commandLine>
         </linkerTool>
       </compileType>
-      <item path="filereader.cpp">
+      <item path="../common/plugin.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="plugin.cpp">
+      <item path="filereader.cpp">
         <itemTool>1</itemTool>
       </item>
     </conf>

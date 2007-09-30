@@ -25,8 +25,8 @@ OBJECTDIR=build/Debug/GNU-Linux-x86
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/plugin.o \
-	${OBJECTDIR}/filereader.o
+	${OBJECTDIR}/filereader.o \
+	${OBJECTDIR}/_ext/root/jnext/src/plugins/filereader/../common/plugin.o
 
 # C Compiler Flags
 CFLAGS=
@@ -48,13 +48,13 @@ LDLIBSOPTIONS=
 	${MKDIR} -p /usr/lib/firefox/plugins/jnext
 	${LINK.cc} -fno-rtti -fno-exceptions -rdynamic -lrt -shared -o /usr/lib/firefox/plugins/jnext/FileReader.so ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
-${OBJECTDIR}/plugin.o: plugin.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	$(COMPILE.cc) -g -o ${OBJECTDIR}/plugin.o plugin.cpp
-
 ${OBJECTDIR}/filereader.o: filereader.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	$(COMPILE.cc) -g -o ${OBJECTDIR}/filereader.o filereader.cpp
+
+${OBJECTDIR}/_ext/root/jnext/src/plugins/filereader/../common/plugin.o: ../common/plugin.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/root/jnext/src/plugins/filereader/../common
+	$(COMPILE.cc) -g -o ${OBJECTDIR}/_ext/root/jnext/src/plugins/filereader/../common/plugin.o ../common/plugin.cpp
 
 # Subprojects
 .build-subprojects:

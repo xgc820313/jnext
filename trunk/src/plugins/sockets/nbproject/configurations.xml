@@ -4,6 +4,7 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>../common/plugin.cpp</itemPath>
       <itemPath>sockets.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="HeaderFiles"
@@ -49,6 +50,9 @@
           <commandLine>-fno-rtti -fno-exceptions -rdynamic -lrt</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../common/plugin.cpp">
+        <itemTool>1</itemTool>
+      </item>
       <item path="sockets.cpp">
         <itemTool>1</itemTool>
       </item>
@@ -88,6 +92,9 @@
           <commandLine>-fno-rtti -fno-exceptions -rdynamic -lrt</commandLine>
         </linkerTool>
       </compileType>
+      <item path="../common/plugin.cpp">
+        <itemTool>1</itemTool>
+      </item>
       <item path="sockets.cpp">
         <itemTool>1</itemTool>
       </item>
