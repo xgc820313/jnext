@@ -314,7 +314,6 @@ ScriptablePluginObject::Invoke( NPIdentifier name, const NPVariant *args,
             strParam += npStr.utf8characters[ i ];
         }
 
-
         string strResult = m_pPlugin->InvokeFunction( strParam );
 
         char* pszName = ( char* ) NPN_MemAlloc( strResult.size() + 1 );
@@ -372,6 +371,8 @@ CPlugin::CPlugin( NPP pNPInstance ) :
     NPObject *myobj =
         NPN_CreateObject( m_pNPInstance,
                           GET_NPOBJECT_CLASS( ScriptablePluginObject ) );
+
+    (( ScriptablePluginObject * ) myobj )->SetPlugin( this );
 
     n = NPN_GetStringIdentifier( "objJSExt" );
 
@@ -459,6 +460,7 @@ NPBool CPlugin::init( NPWindow* pNPWindow )
     }
     strAppPath = br_find_exe_dir( "/usr/lib/firefox/" );
 #endif
+    GetScriptableObject();
     m_NativeLogic.Init( m_strPageURL, strAppPath, (void*)m_pNPInstance );
     return TRUE;
 }
@@ -576,8 +578,8 @@ CPlugin::GetScriptableObject()
         NPN_RetainObject( m_pScriptableObject );
     }
 
-    ScriptablePluginObject* pObj = (ScriptablePluginObject*)m_pScriptableObject;
-    pObj->SetPlugin( this );
+    //ScriptablePluginObject* pObj = (ScriptablePluginObject*)m_pScriptableObject;
+    //pObj->SetPlugin( this );
     return m_pScriptableObject;
 }
 
