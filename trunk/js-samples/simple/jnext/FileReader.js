@@ -9,7 +9,7 @@ function FileReader()
 	{
 		// Open the file specified by strPath
 		var strVal = g_JNEXTDispatcher.invoke( self.m_strObjId, "Open", strPath );
-		arParams = strVal.split( " " );
+		var arParams = strVal.split( " " );
 		return ( arParams[ 0 ] == "Ok" )
     }
 
@@ -17,7 +17,7 @@ function FileReader()
 	{
 		// Read a line from the file that was previously opened
 		var strVal = g_JNEXTDispatcher.invoke( self.m_strObjId, "ReadLine" );
-		arParams = strVal.split( " " );
+		var arParams = strVal.split( " " );
 		if ( arParams[ 0 ] == "EOF" )
 		{
 			return null;
@@ -29,7 +29,7 @@ function FileReader()
 	self.getPathSeparator = function()
 	{
 		var strVal = g_JNEXTDispatcher.invoke( self.m_strObjId, "GetPathSep" );
-		arParams = strVal.split( " " );
+		var arParams = strVal.split( " " );
 		return arParams[ 1 ];
 	}
 	

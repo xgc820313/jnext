@@ -1,0 +1,52 @@
+<HTML>
+<BODY>
+<script src="jnext/jnext.js"></script>
+<script src="jnext/Database.js"></script>
+<script>
+function test()
+{
+	var myDB = new SQLite3();
+	var strPath = "c:\\dev\\soci-2.2.0\\build\\msvc80\\lib\\debug\\test.db3";
+	
+    var arColors = new Array();
+    arColors[ 0 ] = "eoeoeo";
+    arColors[ 1 ] = "fofofo";
+	var strHTML = "<table>";
+
+	var n = 0;
+    if ( !myDB.open( strPath ) )
+    {
+        alert( "Error opening " + strPath );
+        return;
+    }
+
+	myDB.query( "select * from ex" );
+	var row;
+	while ( (row = myDB.getRow()) != null )
+	{
+		if ( row == "Error" )
+		{
+			alert( "Error encountered" );
+			break;
+		}
+		n = 1 - n;
+		strHTML += "<tr bgcolor='#" + arColors[ n ] + "'>";
+		for (var i=0; i<row.length; i++)
+		{
+			strHTML += "<td>";
+			strHTML += row[ i ] + "</td>";
+		}
+		strHTML += "</tr>";
+	}
+
+	strHTML += "</table>";
+    myDB.close();
+	document.getElementById( "id_Output" ).innerHTML = strHTML;
+}
+</script>
+<h3>JNEXT SQLite3 test</h3>
+<input type=button value="Read SQLite3 Database" onclick='test()'>
+<hr/>
+<div id="id_Output"></div>
+</BODY>
+</HTML>
