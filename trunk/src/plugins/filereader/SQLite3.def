@@ -1,0 +1,5 @@
+LIBRARY   SQLite3
+
+EXPORTS
+	SetEventFunc	@1
+	InvokeFunction	@2

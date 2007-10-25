@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=filereader
+PROJECTNAME=SQLite3
 
 # Active Configuration
 ACTIVECONF=Release

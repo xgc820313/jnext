@@ -25,8 +25,8 @@ OBJECTDIR=build/Debug/GNU-Linux-x86
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/filereader.o \
-	${OBJECTDIR}/_ext/root/jnext/src/plugins/filereader/../common/plugin.o
+	${OBJECTDIR}/SQLite3.o \
+	${OBJECTDIR}/_ext/root/jnext/src/plugins/SQLite3/../common/plugin.o
 
 # C Compiler Flags
 CFLAGS=
@@ -42,19 +42,19 @@ FFLAGS=
 LDLIBSOPTIONS=
 
 # Build Targets
-.build-conf: ${BUILD_SUBPROJECTS} /usr/lib/firefox/plugins/jnext/FileReader.so
+.build-conf: ${BUILD_SUBPROJECTS} /usr/lib/firefox/plugins/jnext/SQLite3.so
 
-/usr/lib/firefox/plugins/jnext/FileReader.so: ${OBJECTFILES}
+/usr/lib/firefox/plugins/jnext/SQLite3.so: ${OBJECTFILES}
 	${MKDIR} -p /usr/lib/firefox/plugins/jnext
-	${LINK.cc} -fno-rtti -fno-exceptions -rdynamic -lrt -shared -o /usr/lib/firefox/plugins/jnext/FileReader.so ${OBJECTFILES} ${LDLIBSOPTIONS} 
+	${LINK.cc} -fno-rtti -fno-exceptions -rdynamic -lrt -shared -o /usr/lib/firefox/plugins/jnext/SQLite3.so ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
-${OBJECTDIR}/filereader.o: filereader.cpp 
+${OBJECTDIR}/SQLite3.o: SQLite3.cpp 
 	${MKDIR} -p ${OBJECTDIR}
-	$(COMPILE.cc) -g -o ${OBJECTDIR}/filereader.o filereader.cpp
+	$(COMPILE.cc) -g -o ${OBJECTDIR}/SQLite3.o SQLite3.cpp
 
-${OBJECTDIR}/_ext/root/jnext/src/plugins/filereader/../common/plugin.o: ../common/plugin.cpp 
-	${MKDIR} -p ${OBJECTDIR}/_ext/root/jnext/src/plugins/filereader/../common
-	$(COMPILE.cc) -g -o ${OBJECTDIR}/_ext/root/jnext/src/plugins/filereader/../common/plugin.o ../common/plugin.cpp
+${OBJECTDIR}/_ext/root/jnext/src/plugins/SQLite3/../common/plugin.o: ../common/plugin.cpp 
+	${MKDIR} -p ${OBJECTDIR}/_ext/root/jnext/src/plugins/SQLite3/../common
+	$(COMPILE.cc) -g -o ${OBJECTDIR}/_ext/root/jnext/src/plugins/SQLite3/../common/plugin.o ../common/plugin.cpp
 
 # Subprojects
 .build-subprojects:
@@ -62,7 +62,7 @@ ${OBJECTDIR}/_ext/root/jnext/src/plugins/filereader/../common/plugin.o: ../commo
 # Clean Targets
 .clean-conf:
 	${RM} -r build/Debug
-	${RM} /usr/lib/firefox/plugins/jnext/FileReader.so
+	${RM} /usr/lib/firefox/plugins/jnext/SQLite3.so
 
 # Subprojects
 .clean-subprojects:

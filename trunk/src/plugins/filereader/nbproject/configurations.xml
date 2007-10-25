@@ -4,7 +4,7 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>filereader.cpp</itemPath>
+      <itemPath>SQLite3.cpp</itemPath>
       <itemPath>../common/plugin.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="HeaderFiles"
@@ -37,7 +37,7 @@
           <commandLine>-fPIC</commandLine>
         </ccCompilerTool>
         <linkerTool>
-          <output>/usr/lib/firefox/plugins/jnext/FileReader.so</output>
+          <output>/usr/lib/firefox/plugins/jnext/SQLite3.so</output>
           <linkerLibItems>
           </linkerLibItems>
           <commandLine>-fno-rtti -fno-exceptions -rdynamic -lrt</commandLine>
@@ -46,7 +46,7 @@
       <item path="../common/plugin.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="filereader.cpp">
+      <item path="SQLite3.cpp">
         <itemTool>1</itemTool>
       </item>
     </conf>
@@ -70,7 +70,7 @@
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
-          <output>/usr/lib/firefox/plugins/jnext/FileReader.so</output>
+          <output>/usr/lib/firefox/plugins/jnext/SQLite3.so</output>
           <linkerLibItems>
           </linkerLibItems>
           <commandLine>-fno-rtti -fno-exceptions -rdynamic -lrt</commandLine>
@@ -79,7 +79,7 @@
       <item path="../common/plugin.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="filereader.cpp">
+      <item path="SQLite3.cpp">
         <itemTool>1</itemTool>
       </item>
     </conf>
