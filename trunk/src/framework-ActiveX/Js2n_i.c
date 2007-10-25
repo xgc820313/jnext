@@ -5,8 +5,8 @@
 /* link this file in with the server and any clients */
 
 
- /* File created by MIDL compiler version 6.00.0366 */
-/* at Sun Sep 30 22:21:46 2007
+ /* File created by MIDL compiler version 7.00.0499 */
+/* at Thu Oct 25 19:30:48 2007
  */
 /* Compiler settings for .\Js2n.idl:
     Oicf, W1, Zp8, env=Win32 (32b run)

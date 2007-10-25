@@ -59,8 +59,8 @@ char* SetEventFunc(SendPluginEv funcPtr)
 }
 
 
-const int       nMAXSIZE = 512;
-char			g_szRetVal[ nMAXSIZE ];
+const int       nMAXSIZE    = 512;
+char*			g_pszRetVal = NULL;
 
 //-----------------------------------------------------------
 // Map from an object Id to an object instance
@@ -77,9 +77,15 @@ VoidToMap_T     g_context2Map;
 class GlobalSharedModule
 {
 public:
-    GlobalSharedModule( void ) {}
+    GlobalSharedModule( void )
+    {
+        g_pszRetVal = new char[ nMAXSIZE ];
+    }
+
     ~GlobalSharedModule()
     {
+        delete [] g_pszRetVal;
+
         VoidToMap_T::iterator      posMaps;
 
         for (posMaps = g_context2Map.begin(); posMaps != g_context2Map.end(); ++posMaps )
@@ -102,10 +108,23 @@ public:
 
 GlobalSharedModule g_sharedModule;
 
-char* g_str2static( const string& strRetVal )
+char* g_str2global( const string& strRetVal )
 {
-    strncpy( g_szRetVal, strRetVal.c_str(), nMAXSIZE );
-    return g_szRetVal;
+    int nLen = strRetVal.size();
+    if ( nLen >= nMAXSIZE )
+    {
+        delete [] g_pszRetVal;
+        g_pszRetVal = new char[ nLen + 1 ];
+    }
+    else
+    {
+        // To minimaize the number of memory reallocations, the assumption 
+        // is that in most times this will be the case
+        delete [] g_pszRetVal;
+        g_pszRetVal = new char[ nMAXSIZE ];
+    }
+    strcpy( g_pszRetVal, strRetVal.c_str() );
+    return g_pszRetVal;
 }
 
 char* InvokeFunction( const char* szCommand, void* pContext )
@@ -140,7 +159,7 @@ char* InvokeFunction( const char* szCommand, void* pContext )
         {
             strRetVal += strObjId;
             strRetVal += " :Object already exists.";
-            return g_str2static( strRetVal );
+            return g_str2global( strRetVal );
         }
 
         JSExt* pJSExt = onCreateObject( strClassName, strObjId );
@@ -149,14 +168,14 @@ char* InvokeFunction( const char* szCommand, void* pContext )
             strRetVal += strObjId;
             strRetVal += " :Unknown object type.";
             strRetVal += strClassName;
-            return g_str2static( strRetVal );
+            return g_str2global( strRetVal );
         }
         pJSExt->m_pContext = pContext;
         mapID2Obj.insert( StringToJExt_T::value_type( strObjId, pJSExt ) );
 
         strRetVal = szOK;
         strRetVal += strObjId;
-        return g_str2static( strRetVal );
+        return g_str2global( strRetVal );
     }
     else
     if ( strCommand == szINVOKE )
@@ -169,7 +188,7 @@ char* InvokeFunction( const char* szCommand, void* pContext )
         {
             strRetVal += strObjId;
             strRetVal += " :No object found for id.";
-            return g_str2static( strRetVal );
+            return g_str2global( strRetVal );
         }
 
         JSExt* pJSExt = r->second;
@@ -179,7 +198,7 @@ char* InvokeFunction( const char* szCommand, void* pContext )
         {
             strRetVal += strObjId;
             strRetVal += " :Internal InvokeMethod error.";
-            return g_str2static( strRetVal );
+            return g_str2global( strRetVal );
         }
 
         if ( strMethod == szDISPOSE )
@@ -192,19 +211,19 @@ char* InvokeFunction( const char* szCommand, void* pContext )
             mapID2Obj.erase( strObjId );
             strRetVal = szOK;
             strRetVal += strObjId;
-            return g_str2static( strRetVal );
+            return g_str2global( strRetVal );
         }
 
         size_t nSuffixLoc = nLoc + strObjId.size();
         string strInvoke = strFullCommand.substr( nSuffixLoc );
         strInvoke = g_trim( strInvoke );
         strRetVal = pJSExt->InvokeMethod( strInvoke );
-        return g_str2static( strRetVal );
+        return g_str2global( strRetVal );
     }
 
     strRetVal += " :Unknown command ";
     strRetVal += strCommand;
-    return g_str2static( strRetVal );
+    return g_str2global( strRetVal );
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
