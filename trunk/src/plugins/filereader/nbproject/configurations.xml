@@ -4,8 +4,10 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>../Database.cpp</itemPath>
+      <itemPath>../../common/plugin.cpp</itemPath>
+      <itemPath>sqlite3.c</itemPath>
       <itemPath>SQLite3.cpp</itemPath>
-      <itemPath>../common/plugin.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
@@ -33,21 +35,39 @@
         <platform>2</platform>
       </toolsSet>
       <compileType>
+        <cCompilerTool>
+          <commandLine>-fPIC</commandLine>
+        </cCompilerTool>
         <ccCompilerTool>
+          <includeDirectories>
+            <directoryPath>../../../../../soci-2.2.0/src/core;../../../../../soci-2.2.0/src/backends/sqlite3</directoryPath>
+          </includeDirectories>
           <commandLine>-fPIC</commandLine>
         </ccCompilerTool>
         <linkerTool>
           <output>/usr/lib/firefox/plugins/jnext/SQLite3.so</output>
+          <linkerAddLib>
+            <directoryPath>/root/soci-2.2.0/src/core/.libs</directoryPath>
+            <directoryPath>/root/soci-2.2.0/src/backends/sqlite3/.libs</directoryPath>
+          </linkerAddLib>
           <linkerLibItems>
+            <linkerLibLibItem>soci_core-gcc-g-2_2</linkerLibLibItem>
+            <linkerLibLibItem>soci_sqlite3-gcc-g-2_2</linkerLibLibItem>
           </linkerLibItems>
           <commandLine>-fno-rtti -fno-exceptions -rdynamic -lrt</commandLine>
         </linkerTool>
       </compileType>
-      <item path="../common/plugin.cpp">
+      <item path="../../common/plugin.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../Database.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="SQLite3.cpp">
         <itemTool>1</itemTool>
+      </item>
+      <item path="sqlite3.c">
+        <itemTool>0</itemTool>
       </item>
     </conf>
     <conf name="Release" type="2">
@@ -61,9 +81,14 @@
       <compileType>
         <cCompilerTool>
           <developmentMode>5</developmentMode>
+          <commandLine>-fPIC</commandLine>
         </cCompilerTool>
         <ccCompilerTool>
           <developmentMode>5</developmentMode>
+          <includeDirectories>
+            <directoryPath>../../../../../soci-2.2.0/src/core</directoryPath>
+            <directoryPath>../../../../../soci-2.2.0/src/backends/sqlite3</directoryPath>
+          </includeDirectories>
           <commandLine>-fPIC</commandLine>
         </ccCompilerTool>
         <fortranCompilerTool>
@@ -71,16 +96,29 @@
         </fortranCompilerTool>
         <linkerTool>
           <output>/usr/lib/firefox/plugins/jnext/SQLite3.so</output>
+          <linkerAddLib>
+            <directoryPath>/root/soci-2.2.0/src/core/.libs</directoryPath>
+            <directoryPath>/root/soci-2.2.0/src/backends/sqlite3/.libs</directoryPath>
+          </linkerAddLib>
+          <stripSymbols>true</stripSymbols>
           <linkerLibItems>
+            <linkerLibLibItem>soci_core-gcc-g-2_2</linkerLibLibItem>
+            <linkerLibLibItem>soci_sqlite3-gcc-g-2_2</linkerLibLibItem>
           </linkerLibItems>
           <commandLine>-fno-rtti -fno-exceptions -rdynamic -lrt</commandLine>
         </linkerTool>
       </compileType>
-      <item path="../common/plugin.cpp">
+      <item path="../../common/plugin.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../Database.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="SQLite3.cpp">
         <itemTool>1</itemTool>
+      </item>
+      <item path="sqlite3.c">
+        <itemTool>0</itemTool>
       </item>
     </conf>
   </confs>
