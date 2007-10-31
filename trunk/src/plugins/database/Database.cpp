@@ -60,9 +60,16 @@
 // SOCI database abstraction definitions
 #include "soci.h"
 using namespace SOCI;
-
 #include <algorithm>
 #include <string>
+
+// The following is required since the tolower on Linux is defined as an inline
+// function and the transform STL algorithm cannot accept is as a function pointer
+#include <ctype.h>
+int mytolower(int c)
+{
+    return tolower( c );
+}
 
 /////////////////////////////////////////////////////////////////////////
 // Constants common to Database extension
@@ -322,7 +329,7 @@ string Database::InvokeMethod( const string& strFullCommand )
         vector<string> arParams;
         g_tokenize( strQueryString, " \t", arParams );
         string s = arParams[ 0 ];
-        std::transform(s.begin(), s.end(), s.begin(), tolower);
+        std::transform(s.begin(), s.end(), s.begin(), mytolower);
         try
         {
             if ( s == "select" )
