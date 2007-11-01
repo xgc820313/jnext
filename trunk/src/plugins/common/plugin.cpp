@@ -100,9 +100,10 @@ public:
                 {
                     delete pJSExt;
                 }
-                id2Obj.erase( posMap->first );
             }
+            id2Obj.erase( id2Obj.begin(), id2Obj.end() );
         }
+        g_context2Map.erase( g_context2Map.begin(), g_context2Map.end() );
     }
 };
 
