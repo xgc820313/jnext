@@ -52,13 +52,23 @@ function Database( strType )
 	{
 		var strVal = g_JNEXTDispatcher.invoke( self.m_strObjId, "Query " + strLine );
 		var arParams = strVal.split( " " );
-		if ( arParams[ 0 ] != "Ok" )
+		if ( arParams[ 0 ] == "Error" )
 		{
-			return null
+			return null;
 		}
 
+		if ( arParams[ 0 ] == "Ok" )
+		{
+			return true;
+		}
+		
+		if ( arParams[ 0 ] != "NewQuery" )
+		{
+			return false;
+		}
+		
 		// initialize query with the returned query id
-		var objQuery = new DBQuery( self, arParams[ 1 ] );
+		var objQuery = new DBQuery( self, arParams[ 2 ] );
 		return objQuery;
 	}
 		
