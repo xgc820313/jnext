@@ -3,6 +3,6 @@
 
 using namespace SOCI;
 
-const char* g_szDatabase	= "SQLite3"; // The only class supported by this plugin
+const char* g_szDatabase	= "SQLite3";
 BackEndFactory const &g_backEnd = sqlite3;
 
