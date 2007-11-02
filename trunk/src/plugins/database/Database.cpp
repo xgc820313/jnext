@@ -82,6 +82,7 @@ int mytolower(int c)
 const char* szOPEN			= "Open";       // Open the Database
 const char* szGETROW        = "GetRow";     // Get next row for last query
 const char* szQUERY			= "Query";   	// Send an SQL query
+const char* szCLOSEQUERY	= "CloseQuery"; // Close an SQL query
 const char* szCLOSE			= "Close";      // Close
 
 // constants
@@ -96,7 +97,25 @@ extern BackEndFactory const&    g_backEnd;
 // Comma separated list of classes supported by this extension
 extern const char*              g_szDatabase;
 
-// Derive your extension class from JSExt (defined in plugin.h)
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+class DBQuery
+{
+public:
+    DBQuery( void );
+    ~DBQuery();
+    bool Init( Session& sql, const string& strQueryString, string& strErr );
+    string GetRow( void );
+
+private:
+    SOCI::Row           m_Row;
+    SOCI::Statement*    m_pStatement;
+};
+
+typedef std::map<string, DBQuery*>     StringToQuery_T;
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 class Database : public JSExt
 {
 public:
@@ -109,12 +128,13 @@ private:
     void Close( void );
     void NotifyEvent( const char* szEvent );
     Database( void );
+    string GetNextQid( void );
 
 private:
     string			    m_strObjId;  // unique JNEXT id given to this object
     SOCI::Session*	    m_pSQL;      // corresponding Database session
-    SOCI::Row           m_Row;
-    SOCI::Statement*    m_pStatement;
+    StringToQuery_T     m_id2Query;  // container of queries opened on this database
+    int                 m_nCurrQid;  // index of last query id
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -136,24 +156,147 @@ private:
 char* onGetObjList( void )
 {
     // Return a comma separated list of classes known to this plugin
-    // in this case it is only "Database"
-
+    // in this case it is "<Database>,<DBQuery>", where <Database> and
+    // <DBQuery> depend on which database plugin project this file
+    // is being compiled into
     return (char*)g_szDatabase;
 }
 
 JSExt* onCreateObject( const string& strClassName, const string& strObjId )
 {
     // Given a class name and identifier, create the relevant object.
-    // In this sample, only the Database object is valid
-
     if ( strClassName != g_szDatabase )
     {
         return NULL;
     }
 
-    // Object name is valid - return a new object
     return new Database( strObjId );
 }
+
+
+/////////////////////////////////////////////////////////////////////////
+// DBQuery implementation
+/////////////////////////////////////////////////////////////////////////
+
+DBQuery::DBQuery( void )
+{
+    m_pStatement = NULL;
+}
+
+DBQuery::~DBQuery()
+{
+    delete m_pStatement;
+}
+
+bool DBQuery::Init( Session& sql, const string& strQueryString, string& strErr )
+{
+    strErr = "No Error";
+    bool bRetVal = true;
+    try
+    {
+        m_pStatement = new Statement((sql.prepare << strQueryString, into(m_Row)));
+        if ( m_pStatement == NULL )
+        {
+            strErr = "Could not allocate statment";
+            return false;
+        }
+
+        bRetVal = m_pStatement->execute();
+        bRetVal = true;
+    }
+    catch (SOCIError const &e)
+    {
+        strErr = e.what();
+        return false;
+    }
+
+    return bRetVal;
+}
+
+string DBQuery::GetRow( void )
+{
+    string strRetVal;
+    Statement& st = *m_pStatement;
+    if ( st.fetch() )
+    {
+        char szBuf[80];
+        string strRow = "[";
+        for ( size_t i=0; i<m_Row.size(); ++i)
+        {
+            const ColumnProperties& props = m_Row.getProperties(i);
+            //std::cout << '<' << props.getName() << '>';
+            switch(props.getDataType())
+            {
+                case eString:
+                {
+                    strRow += '"';
+                    string s = m_Row.get<std::string>(i);
+                    for (size_t j=0; j<s.length(); ++j)
+                    {
+                        if ( s[ j ] == '"' )
+                        {
+                            strRow += '\\';
+                        }
+                        strRow += s[ j ];
+                    }
+                    strRow += '"';
+                    break;
+                }
+
+                case eDouble:
+                {
+                    sprintf( szBuf, "%f", m_Row.get<double>(i) );
+                    strRow += szBuf;
+                    break;
+                }
+
+                case eInteger:
+                {
+                    sprintf( szBuf, "%d", m_Row.get<int>(i) );
+                    strRow += szBuf;
+                    break;
+                }
+
+                case eUnsignedLong:
+                {
+                    sprintf( szBuf, "%u", m_Row.get<unsigned long>(i) );
+                    strRow += szBuf;
+                    break;
+                }
+
+                case eDate:
+                {
+                    std::tm when = m_Row.get<std::tm>(i); 
+                    strRow += '"';
+                    char szTime[ 30 ];
+                    strcpy( szTime, asctime(&when) );
+                    char* pNL = strchr(szTime, '\n');
+                    if ( pNL != NULL )
+                    {
+                        // silly asctime thing
+                        *pNL = '\0';
+                    }
+
+                    strRow += szTime;
+                    strRow += '"';
+                    break;
+                }
+            } // switch
+
+            if ( i < m_Row.size()-1 )
+            {
+                strRow += ",";
+            }
+        } // for loop of row contents
+        strRow += "]";
+        return strRow;
+    } // if fetch
+    else
+    {
+        return szLASTROW;
+    }
+}
+
 
 /////////////////////////////////////////////////////////////////////////
 // Database implementation
@@ -170,7 +313,15 @@ Database::Database( const string& strObjId )
 
     // Perform any other class specific initializations
     m_pSQL          = NULL;
-    m_pStatement    = NULL;
+
+    m_nCurrQid      = 1;
+}
+
+string Database::GetNextQid( void )
+{
+    static char szBuf[ 20 ];
+    sprintf( szBuf, "%d", m_nCurrQid );
+    return szBuf;
 }
 
 bool Database::CanDelete( void )
@@ -223,97 +374,6 @@ string Database::InvokeMethod( const string& strFullCommand )
         return strRetVal;
     }
     else
-    if ( strCommand == szGETROW )
-    {
-        if ( m_pStatement == NULL )
-        {
-            strRetVal = szERROR + m_strObjId + ":No query issued";
-            return strRetVal;
-        }
-
-        Statement& st = *m_pStatement;
-        if ( st.fetch() )
-        {
-            char szBuf[80];
-            string strRow = "[";
-            for ( int i=0; i<m_Row.size(); ++i)
-            {
-                const ColumnProperties& props = m_Row.getProperties(i);
-                //std::cout << '<' << props.getName() << '>';
-                switch(props.getDataType())
-                {
-                    case eString:
-                    {
-                        strRow += '"';
-                        string s = m_Row.get<std::string>(i);
-                        for (int j=0; j<s.length(); ++j)
-                        {
-                            if ( s[ j ] == '"' )
-                            {
-                                strRow += '\\';
-                            }
-                            strRow += s[ j ];
-                        }
-                        strRow += '"';
-                        break;
-                    }
-
-                    case eDouble:
-                    {
-                        sprintf( szBuf, "%f", m_Row.get<double>(i) );
-                        strRow += szBuf;
-                        break;
-                    }
-
-                    case eInteger:
-                    {
-                        sprintf( szBuf, "%d", m_Row.get<int>(i) );
-                        strRow += szBuf;
-                        break;
-                    }
-
-                    case eUnsignedLong:
-                    {
-                        sprintf( szBuf, "%u", m_Row.get<unsigned long>(i) );
-                        strRow += szBuf;
-                        break;
-                    }
-
-                    case eDate:
-                    {
-                        std::tm when = m_Row.get<std::tm>(i); 
-                        strRow += '"';
-                        char szTime[ 30 ];
-                        strcpy( szTime, asctime(&when) );
-                        char* pNL = strchr(szTime, '\n');
-                        if ( pNL != NULL )
-                        {
-                            // silly asctime thing
-                            *pNL = '\0';
-                        }
-
-                        strRow += szTime;
-                        strRow += '"';
-                        break;
-                    }
-                } // switch
-
-                if ( i < m_Row.size()-1 )
-                {
-                    strRow += ",";
-                }
-            } // for loop of row contents
-            strRow += "]";
-            strRetVal = szNEWROW + m_strObjId + " " + strRow;
-            return strRetVal;
-        } // if fetch
-        else
-        {
-            strRetVal = szLASTROW + m_strObjId;
-            return strRetVal;
-        }
-    }
-    else
     if ( strCommand == szQUERY )
     {
         // Database query method has been requested
@@ -330,27 +390,73 @@ string Database::InvokeMethod( const string& strFullCommand )
         g_tokenize( strQueryString, " \t", arParams );
         string s = arParams[ 0 ];
         std::transform(s.begin(), s.end(), s.begin(), mytolower);
-        try
+        if ( s == "select" )
         {
-            if ( s == "select" )
+            // this is a SELECT statement
+            DBQuery* pQuery = new DBQuery();
+            if ( pQuery == NULL )
             {
-                delete m_pStatement;
-                m_pStatement = new Statement((sql.prepare << strQueryString, into(m_Row)));
-                m_pStatement->execute();
+                strRetVal = szERROR + m_strObjId + " :Can't create query";
+                return strRetVal;
             }
-            else
+            string strErr;
+            if ( !pQuery->Init( sql, strQueryString, strErr ) )
+            {
+                delete pQuery;
+                strRetVal = szERROR + m_strObjId + " :" + strErr;
+                return strRetVal;
+            }
+            string strQid = GetNextQid();
+            m_id2Query.insert( StringToQuery_T::value_type( strQid, pQuery ) );
+        }
+        else
+        {
+            // some other SQL statement
+            try
             {
                 sql << strQueryString;
-                strRetVal = szOK + m_strObjId;
+            }
+            catch (SOCIError const &e)
+            {
+                string strErr = e.what();
+                strRetVal = szERROR + m_strObjId + " :" + strErr;
                 return strRetVal;
             }
         }
-        catch (SOCIError const &e)
+        strRetVal = szOK + m_strObjId;
+        return strRetVal;
+    }
+    else
+    if ( strCommand == szGETROW )
+    {
+        string strQueryId	= strFullCommand.substr( arParams[ 0 ].size()+1 );
+        StringToQuery_T::iterator r = m_id2Query.find( strQueryId );
+        if ( r == m_id2Query.end() )
         {
-            string strErr = e.what();
-            strRetVal = szERROR + m_strObjId + " :" + strErr;
+            strRetVal = szERROR + m_strObjId + " :No Query found for id.";
             return strRetVal;
         }
+
+        DBQuery* pDBQuery = r->second;
+        strRetVal = szNEWROW + m_strObjId + " " + pDBQuery->GetRow();
+        return strRetVal;
+    }
+    else
+    if ( strCommand == szCLOSEQUERY )
+    {
+        string strQueryId	= strFullCommand.substr( arParams[ 0 ].size()+1 );
+        StringToQuery_T::iterator r = m_id2Query.find( strQueryId );
+        if ( r == m_id2Query.end() )
+        {
+            strRetVal = szERROR + m_strObjId + " :No Query found for id.";
+            return strRetVal;
+        }
+
+        DBQuery* pDBQuery = r->second;
+        delete pDBQuery;
+        m_id2Query.erase( strQueryId );
+        strRetVal = szOK + m_strObjId;
+        return strRetVal;
     }
     else
     {
@@ -362,9 +468,19 @@ string Database::InvokeMethod( const string& strFullCommand )
 
 void Database::Close( void )
 {
+    StringToQuery_T::iterator posMap;
+
+    // delete any queries that have not been closed
+    for ( posMap = m_id2Query.begin(); posMap != m_id2Query.end(); ++posMap )
+    {
+        DBQuery* pDBQuery = posMap->second;
+        delete pDBQuery;
+    }
+    m_id2Query.erase( m_id2Query.begin(), m_id2Query.end() );
+
+    // Delete the corresponding SQL session
     if ( m_pSQL != NULL )
     {
-        delete m_pStatement;
         delete m_pSQL;
     }
 
