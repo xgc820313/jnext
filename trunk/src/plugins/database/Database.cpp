@@ -63,6 +63,8 @@ using namespace SOCI;
 #include <algorithm>
 #include <string>
 
+#define szNEWQUERY      "NewQuery "
+
 // The following is required since the tolower on Linux is defined as an inline
 // function and the transform STL algorithm cannot accept is as a function pointer
 #include <ctype.h>
@@ -134,8 +136,10 @@ private:
     string			    m_strObjId;  // unique JNEXT id given to this object
     SOCI::Session*	    m_pSQL;      // corresponding Database session
     StringToQuery_T     m_id2Query;  // container of queries opened on this database
-    int                 m_nCurrQid;  // index of last query id
+    static int          m_nCurrQid;  // index of last query id
 };
+
+int Database::m_nCurrQid = 0;
 
 /////////////////////////////////////////////////////////////////////////
 // The following two callbacks that have to be implemented. They are
@@ -320,7 +324,7 @@ Database::Database( const string& strObjId )
 string Database::GetNextQid( void )
 {
     static char szBuf[ 20 ];
-    sprintf( szBuf, "%d", m_nCurrQid );
+    sprintf( szBuf, "%d", m_nCurrQid++ );
     return szBuf;
 }
 
@@ -408,6 +412,8 @@ string Database::InvokeMethod( const string& strFullCommand )
             }
             string strQid = GetNextQid();
             m_id2Query.insert( StringToQuery_T::value_type( strQid, pQuery ) );
+            strRetVal = szNEWQUERY + m_strObjId + " " + strQid;
+            return strRetVal;
         }
         else
         {
@@ -438,7 +444,12 @@ string Database::InvokeMethod( const string& strFullCommand )
         }
 
         DBQuery* pDBQuery = r->second;
-        strRetVal = szNEWROW + m_strObjId + " " + pDBQuery->GetRow();
+        string strRow = pDBQuery->GetRow();
+        if ( strRow == szLASTROW )
+        {
+            return strRow;
+        }
+        strRetVal = szNEWROW + m_strObjId + " " + strRow;
         return strRetVal;
     }
     else
