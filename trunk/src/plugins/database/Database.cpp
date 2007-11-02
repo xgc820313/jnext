@@ -65,6 +65,9 @@ using namespace SOCI;
 
 #define szNEWQUERY      "NewQuery "
 
+#define szGETCOLNAMES   "GetColNames"
+#define szGETCOLTYPES   "GetColTypes"
+
 // The following is required since the tolower on Linux is defined as an inline
 // function and the transform STL algorithm cannot accept is as a function pointer
 #include <ctype.h>
@@ -108,6 +111,8 @@ public:
     ~DBQuery();
     bool Init( Session& sql, const string& strQueryString, string& strErr );
     string GetRow( void );
+    string GetColumnNames( void );
+    string GetColumnTypes( void );
 
 private:
     SOCI::Row           m_Row;
@@ -217,6 +222,75 @@ bool DBQuery::Init( Session& sql, const string& strQueryString, string& strErr )
     return bRetVal;
 }
 
+string DBQuery::GetColumnNames( void )
+{
+    size_t nSize = m_Row.size();
+    string strRow = "[";
+    for ( size_t i=0; i<nSize; i++)
+    {
+        const ColumnProperties& props = m_Row.getProperties(i);
+        strRow += "\"" + props.getName() + "\"";
+        if ( i < nSize-1 )
+        {
+            strRow += ",";
+        }
+    }
+    strRow += "]";
+
+    return strRow;
+}
+
+string DBQuery::GetColumnTypes( void )
+{
+    size_t nSize = m_Row.size();
+    string strRow = "[";
+    for ( size_t i=0; i<nSize; i++)
+    {
+        const ColumnProperties& props = m_Row.getProperties(i);
+        strRow += '"';
+        switch(props.getDataType())
+        {
+            case eString:
+            {
+                strRow += "String";
+                break;
+            }
+
+            case eDouble:
+            {
+                strRow += "Double";
+                break;
+            }
+
+            case eInteger:
+            {
+                strRow += "Integer";
+                break;
+            }
+
+            case eUnsignedLong:
+            {
+                strRow += "Unsigned";
+                break;
+            }
+
+            case eDate:
+            {
+                strRow += "Date";
+                break;
+            }
+        } // switch
+        strRow += '"';
+        if ( i < nSize-1 )
+        {
+            strRow += ",";
+        }
+    }
+    strRow += "]";
+
+    return strRow;
+}
+
 string DBQuery::GetRow( void )
 {
     string strRetVal;
@@ -225,7 +299,8 @@ string DBQuery::GetRow( void )
     {
         char szBuf[80];
         string strRow = "[";
-        for ( size_t i=0; i<m_Row.size(); ++i)
+        size_t nSize = m_Row.size();
+        for ( size_t i=0; i<nSize; i++)
         {
             const ColumnProperties& props = m_Row.getProperties(i);
             //std::cout << '<' << props.getName() << '>';
@@ -287,7 +362,7 @@ string DBQuery::GetRow( void )
                 }
             } // switch
 
-            if ( i < m_Row.size()-1 )
+            if ( i < nSize-1 )
             {
                 strRow += ",";
             }
@@ -467,6 +542,38 @@ string Database::InvokeMethod( const string& strFullCommand )
         delete pDBQuery;
         m_id2Query.erase( strQueryId );
         strRetVal = szOK + m_strObjId;
+        return strRetVal;
+    }
+    else
+    if ( strCommand == szGETCOLNAMES )
+    {
+        string strQueryId	= strFullCommand.substr( arParams[ 0 ].size()+1 );
+        StringToQuery_T::iterator r = m_id2Query.find( strQueryId );
+        if ( r == m_id2Query.end() )
+        {
+            strRetVal = szERROR + m_strObjId + " :No Query found for id.";
+            return strRetVal;
+        }
+
+        DBQuery* pDBQuery = r->second;
+
+        strRetVal = szOK + m_strObjId + " " + pDBQuery->GetColumnNames();
+        return strRetVal;
+    }
+    else
+    if ( strCommand == szGETCOLTYPES )
+    {
+        string strQueryId	= strFullCommand.substr( arParams[ 0 ].size()+1 );
+        StringToQuery_T::iterator r = m_id2Query.find( strQueryId );
+        if ( r == m_id2Query.end() )
+        {
+            strRetVal = szERROR + m_strObjId + " :No Query found for id.";
+            return strRetVal;
+        }
+
+        DBQuery* pDBQuery = r->second;
+
+        strRetVal = szOK + m_strObjId + " " + pDBQuery->GetColumnTypes();
         return strRetVal;
     }
     else
