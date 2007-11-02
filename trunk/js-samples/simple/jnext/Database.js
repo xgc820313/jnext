@@ -2,28 +2,15 @@
 // JavaScript wrapper for JNEXT database plugins 
 ///////////////////////////////////////////////////////////////////
 
-function Database( strType )
+function DBQuery( objDB, strQueryId )
 {
 	var self = this;
-	self.m_strType = strType;
-	
-    self.open = function( strConnectString )
-	{
-		var strVal = g_JNEXTDispatcher.invoke( self.m_strObjId, "Open " + strConnectString );
-		var arParams = strVal.split( " " );
-		return ( arParams[ 0 ] == "Ok" )
-    }
-
-	self.query = function( strLine )
-	{
-		var strVal = g_JNEXTDispatcher.invoke( self.m_strObjId, "Query " + strLine );
-		var arParams = strVal.split( " " );
-		return ( arParams[ 0 ] == "Ok" )
-	}
+	self.m_strQueryId = strQueryId;
+	self.m_objDB      = objDB;
 	
 	self.getRow = function()
 	{
-		var strVal = g_JNEXTDispatcher.invoke( self.m_strObjId, "GetRow" );
+		var strVal = self.m_objDB.getRow( self.m_strQueryId );
 		var arParams = strVal.split( " " );
 		if ( arParams[ 0 ] == "LastRow" )
 		{
@@ -39,6 +26,45 @@ function Database( strType )
 		var strExp = "var arRow = " + strVal.substr( nStart );
 		eval( strExp );
 		return arRow;
+	}
+	
+	self.close = function()
+	{
+		self.m_objDB.closeQuery( self.m_strObjId );
+	}	
+}
+
+///////////////////////////////////////////////////////////////////
+
+function Database( strType )
+{
+	var self = this;
+	self.m_strType = strType;
+	
+    self.open = function( strConnectString )
+	{
+		var strVal = g_JNEXTDispatcher.invoke( self.m_strObjId, "Open " + strConnectString );
+		var arParams = strVal.split( " " );
+		return ( arParams[ 0 ] == "Ok" );
+    }
+
+	self.query = function( strLine )
+	{
+		var strVal = g_JNEXTDispatcher.invoke( self.m_strObjId, "Query " + strLine );
+		var arParams = strVal.split( " " );
+		if ( arParams[ 0 ] != "Ok" )
+		{
+			return null
+		}
+
+		// initialize query with the returned query id
+		var objQuery = new DBQuery( self, arParams[ 1 ] );
+		return objQuery;
+	}
+		
+	self.getRow = function( strQueryId )
+	{
+		return g_JNEXTDispatcher.invoke( self.m_strObjId, "GetRow " + strQueryId );
 	}
 	
 	self.close = function()

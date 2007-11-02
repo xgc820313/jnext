@@ -6,12 +6,12 @@
 function test()
 {
 	var myDB = new SQLite3();
-	var strPath = "c:\\dev\\soci-2.2.0\\build\\msvc80\\lib\\debug\\test.db3";
 	
+	var strPath = document.getElementById( "id_filename" ).value;
+
     var arColors = new Array();
     arColors[ 0 ] = "eoeoeo";
     arColors[ 1 ] = "fofofo";
-	var strHTML = "<table>";
 
 	var n = 0;
     if ( !myDB.open( strPath ) )
@@ -19,32 +19,42 @@ function test()
         alert( "Error opening " + strPath );
         return;
     }
-
-	myDB.query( "select * from ex" );
+	var strHTML = "";
+	var objQuery1 = myDB.query( "select name from sqlite_master where type='table'" );
 	var row;
-	while ( (row = myDB.getRow()) != null )
+	while ( (row = objQuery1.getRow()) != null )
 	{
-		if ( row == "Error" )
+		var strTable = row[ 0 ];
+		var objQuery2 = myDB.query( "select * from " + strTable + " limit 10" );
+		
+		strHTML += "<h4>" + strTable + "</h4><table>";
+		while ( (row = objQuery2.getRow()) != null )
 		{
-			alert( "Error encountered" );
-			break;
+			if ( row == "Error" )
+			{
+				alert( "Error encountered" );
+				break;
+			}
+			n = 1 - n;
+			strHTML += "<tr bgcolor='#" + arColors[ n ] + "'>";
+			for (var i=0; i<row.length; i++)
+			{
+				strHTML += "<td>";
+				strHTML += row[ i ] + "</td>";
+			}
+			strHTML += "</tr>";
 		}
-		n = 1 - n;
-		strHTML += "<tr bgcolor='#" + arColors[ n ] + "'>";
-		for (var i=0; i<row.length; i++)
-		{
-			strHTML += "<td>";
-			strHTML += row[ i ] + "</td>";
-		}
-		strHTML += "</tr>";
+		strHTML += "</table><hr>";
 	}
 
-	strHTML += "</table>";
     myDB.close();
 	document.getElementById( "id_Output" ).innerHTML = strHTML;
 }
 </script>
 <h3>JNEXT SQLite3 test</h3>
+Please select an SQLite3 file:<br>
+<input type="file" id="id_filename" size="40">
+</p>
 <input type=button value="Read SQLite3 Database" onclick='test()'>
 <hr/>
 <div id="id_Output"></div>
