@@ -7,6 +7,36 @@ function DBQuery( objDB, strQueryId )
 	var self = this;
 	self.m_strQueryId = strQueryId;
 	self.m_objDB      = objDB;
+
+	self.getColNames = function()
+	{
+		var strVal = self.m_objDB.getColNames( self.m_strQueryId );
+		var arParams = strVal.split( " " );
+		if ( arParams[ 0 ] == "Error" )
+		{
+			return null;
+		}
+
+		var nStart = arParams[ 0 ].length + arParams[ 1 ].length + 2; 
+		var strExp = "var arRow = " + strVal.substr( nStart );
+		eval( strExp );
+		return arRow;
+	}
+	
+	self.getColTypes = function()
+	{
+		var strVal = self.m_objDB.getColTypes( self.m_strQueryId );
+		var arParams = strVal.split( " " );
+		if ( arParams[ 0 ] == "Error" )
+		{
+			return null;
+		}
+
+		var nStart = arParams[ 0 ].length + arParams[ 1 ].length + 2; 
+		var strExp = "var arRow = " + strVal.substr( nStart );
+		eval( strExp );
+		return arRow;
+	}
 	
 	self.getRow = function()
 	{
@@ -75,6 +105,16 @@ function Database( strType )
 	self.getRow = function( strQueryId )
 	{
 		return g_JNEXTDispatcher.invoke( self.m_strObjId, "GetRow " + strQueryId );
+	}
+	
+	self.getColNames = function( strQueryId )
+	{
+		return g_JNEXTDispatcher.invoke( self.m_strObjId, "GetColNames " + strQueryId );
+	}
+	
+	self.getColTypes = function( strQueryId )
+	{
+		return g_JNEXTDispatcher.invoke( self.m_strObjId, "GetColTypes " + strQueryId );
 	}
 	
 	self.close = function()

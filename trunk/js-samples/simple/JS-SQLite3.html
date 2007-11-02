@@ -1,4 +1,5 @@
 <HTML>
+<STYLE type="text/css"> BODY { font-family: "Arial","Verdana" }</STYLE>
 <BODY>
 <script src="jnext/jnext.js"></script>
 <script src="jnext/Database.js"></script>
@@ -28,7 +29,24 @@ function test()
 		var strTable = row[ 0 ];
 		var objQuery2 = myDB.query( "select * from " + strTable + " limit 10" );
 		
-		strHTML += "<h4>" + strTable + "</h4><table>";
+		strHTML += "<h3><center>Table " + strTable + "</center></h3><table>";
+
+		arNames = objQuery2.getColNames();
+		strHTML += "<tr bgcolor='LightBlue'>";
+		for ( var i=0; i<arNames.length; i++ )
+		{
+			strHTML += "<td>" + arNames[ i ] + "</td>";
+		}
+		strHTML += "</tr>";
+
+		arTypes = objQuery2.getColTypes();
+		strHTML += "<tr bgcolor='LightSteelBlue'>";
+		for ( var i=0; i<arTypes.length; i++ )
+		{
+			strHTML += "<td>" + arTypes[ i ] + "</td>";
+		}
+		strHTML += "</tr>";
+
 		while ( (row = objQuery2.getRow()) != null )
 		{
 			if ( row == "Error" )
