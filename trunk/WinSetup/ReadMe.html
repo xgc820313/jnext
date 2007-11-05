@@ -12,25 +12,35 @@ TD {
 }
 </style>
 <BODY>
-<h3>Readme file for JNEXT 1.0.5</h3>
+<h3>Readme file for JNEXT 1.0.7</h3>
 <p>
 This setup has installed JNEXT for use on Windows with IE, Firefox, Safari, Navigator and Opera browsers. 
 </p>
 <h4>Quick Start</h4>
 <p>
-There are three examples that are included. After trying the examples you can try and modify and enhance the sources in the html file
+There are four examples included in the setup. After trying out the examples you can modify and enhance the sources in the html file
 for a particular example to get a feeling for the ease of development with JNEXT.
 </p>
-<p>To try the first one, open the POP3Client.html file, enter the POP3 server and account details
-and then click the 'Connect' button. A list of subjects of your email messages should appear on the browser window (This example demonstrates
-the use of AsyncLineSocket class. 
+<ul>
+<li>
+<p>To directly access SQLite3 database files from JavaScript, open the JS-SQLite3.html file. The setup installed a sample database file (world.db3) in the same folder as the HTML samples. Select the database and click the "Read Database" button. The content of the database tables will then be displayed within the Web browser page.
 </p>
+</li>
+<li>
+<p>For another example, open the POP3Client.html file, enter the POP3 server and account details
+and then click the 'Connect' button. A list of subjects of your email messages should appear on the browser window (This example demonstrates
+the use of AsyncLineSocket class). 
+</p>
+</li>
+<li>
 <p>
-The second example illustrates the FileReader extension. To start it, open JS-FileReader.html and click the 'Read File' button. The contents of
+To start the FileReader example, open JS-FileReader.html and click the 'Read File' button. The contents of
 your win.ini file will then be displayed on the browser window. 
 </p>
+</li>
+<li>
 <p>
-In order to try out the third example (JS-sockets.html) you should first have either a Perl or a Python interpreter
+In order to try out JS-sockets.html you should first have either a Perl or a Python interpreter
  installed on your system since they are used to simulate a server that the JNEXT sample communicates with.
  You can download and install Python from <a href="http://www.python.org/ftp/python/2.5.1/python-2.5.1.msi">here</a>
  and Perl from <a href=""http://www.activestate.com/store/freedownload.aspx">here</a>.
@@ -39,6 +49,8 @@ In order to try out the third example (JS-sockets.html) you should first have ei
 Once you have Perl or Python installed, start either server.pl or server.py to run the test server on your system and next open the JS-sockets.html
 in your browser. Click the 'Connect' and you should start seeing messages received from the Perl or Python server.
 </p>
+</li>
+</ul>
 <h4>Site authorization</h4>
 <p>
 The set of URLs that are authorized to access JNEXT libraries for a specific browser is defined in a file named <font face="courier">auth.txt</font> which is located 

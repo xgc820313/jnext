@@ -6,8 +6,8 @@
 ; See attached MPL 1.1 license for details.
 
 [Setup]
-AppName=JNEXT 1.0.5
-AppVerName=JNEXT 1.0.5
+AppName=JNEXT 1.0.7
+AppVerName=JNEXT 1.0.7
 AppPublisher=Optimistec Ltd.
 AppPublisherURL=http://www.jnext.org
 AppSupportURL=http://www.jnext.org
@@ -16,7 +16,7 @@ DefaultDirName={pf}\Optimistec
 DefaultGroupName=JNEXT
 LicenseFile=MPL-1.1.txt
 OutputDir=JNEXT-Output
-OutputBaseFilename=JNEXT-1.0.5
+OutputBaseFilename=JNEXT-1.0.7
 WizardImageFile=jnext-left.bmp
 WizardSmallImageFile=smallimg.bmp
 BackSolid=no
@@ -40,6 +40,10 @@ Source: "..\src\plugins\filereader\Release\filereader.dll"; DestDir:"{%JNEXT_}{c
 Source: "..\src\plugins\filereader\Release\filereader.dll"; DestDir:"{%JNEXT_}{code:getDir|e_opera}"; Flags: ignoreversion; Check: appExists( 'opera' );
 Source: "..\src\plugins\filereader\Release\filereader.dll"; DestDir:"{%JNEXT_}{code:getDir|e_safari}"; Flags: ignoreversion; Check: appExists( 'safari' );
 Source: "..\src\plugins\filereader\Release\filereader.dll"; DestDir:"{%JNEXT_}{code:getDir|e_navigator}"; Flags: ignoreversion; Check: appExists( 'navigator' );
+Source: "..\src\plugins\database\sqlite3\Release\SQLite3.dll"; DestDir:"{%JNEXT_}{code:getDir|e_firefox}"; Flags: ignoreversion; Check: appExists( 'firefox' );
+Source: "..\src\plugins\database\sqlite3\Release\SQLite3.dll"; DestDir:"{%JNEXT_}{code:getDir|e_opera}"; Flags: ignoreversion; Check: appExists( 'opera' );
+Source: "..\src\plugins\database\sqlite3\Release\SQLite3.dll"; DestDir:"{%JNEXT_}{code:getDir|e_safari}"; Flags: ignoreversion; Check: appExists( 'safari' );
+Source: "..\src\plugins\database\sqlite3\Release\SQLite3.dll"; DestDir:"{%JNEXT_}{code:getDir|e_navigator}"; Flags: ignoreversion; Check: appExists( 'navigator' );
 Source: ".\auth.txt"; DestDir:"{%JNEXT_}{code:getDir|e_firefox}"; Flags: ignoreversion; Check: appExists( 'firefox' );
 Source: ".\auth.txt"; DestDir:"{%JNEXT_}{code:getDir|e_opera}"; Flags: ignoreversion; Check: appExists( 'opera' );
 Source: ".\auth.txt"; DestDir:"{%JNEXT_}{code:getDir|e_safari}"; Flags: ignoreversion; Check: appExists( 'safari' );
@@ -48,6 +52,7 @@ Source: ".\auth.txt"; DestDir:"{%JNEXT_}{code:getDir|e_navigator}"; Flags: ignor
 Source: "..\src\framework-ActiveX\Release\jnext.ocx"; DestDir: "{app}\JNEXT\ActiveX\"; Flags: ignoreversion regserver
 Source: "..\src\plugins\sockets\Release\Sockets.dll"; DestDir:"{app}\JNEXT\ActiveX\jnext\"; Flags: ignoreversion
 Source: "..\src\plugins\filereader\Release\filereader.dll"; DestDir:"{app}\JNEXT\ActiveX\jnext\"; Flags: ignoreversion
+Source: "..\src\plugins\database\sqlite3\Release\SQLite3.dll"; DestDir:"{app}\JNEXT\ActiveX\jnext\"; Flags: ignoreversion
 Source: ".\auth.txt"; DestDir:"{app}\JNEXT\ActiveX\jnext\"; Flags: ignoreversion
 Source: ".\JNEXT.ico"; DestDir:"{app}\JNEXT\"; Flags: ignoreversion
 Source: "..\js-samples\simple\*"; DestDir: "{app}\JNEXT\samples\"; Flags: recursesubdirs ignoreversion
