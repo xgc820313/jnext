@@ -64,8 +64,10 @@ function test()
 			strHTML += "</tr>";
 		}
 		strHTML += "</table><hr>";
+		objQuery2.close();
 	}
-
+	
+	objQuery1.close();
     myDB.close();
 	document.getElementById( "id_Output" ).innerHTML = strHTML;
 }

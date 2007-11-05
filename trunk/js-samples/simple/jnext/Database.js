@@ -60,7 +60,7 @@ function DBQuery( objDB, strQueryId )
 	
 	self.close = function()
 	{
-		self.m_objDB.closeQuery( self.m_strObjId );
+		self.m_objDB.closeQuery( self.m_strQueryId );
 	}	
 }
 
@@ -80,6 +80,8 @@ function Database( strType )
 
 	self.query = function( strLine )
 	{
+		strLine = strLine.replace(/^\s*/, ''); // trim leading whitespace
+		strLine = strLine.replace(/\s*$/, ''); // trim trailing whitespace
 		var strVal = g_JNEXTDispatcher.invoke( self.m_strObjId, "Query " + strLine );
 		var arParams = strVal.split( " " );
 		if ( arParams[ 0 ] == "Error" )
@@ -102,6 +104,11 @@ function Database( strType )
 		return objQuery;
 	}
 		
+	self.closeQuery = function( strQueryId )
+	{
+		return g_JNEXTDispatcher.invoke( self.m_strObjId, "CloseQuery " + strQueryId );
+	}
+	
 	self.getRow = function( strQueryId )
 	{
 		return g_JNEXTDispatcher.invoke( self.m_strObjId, "GetRow " + strQueryId );
