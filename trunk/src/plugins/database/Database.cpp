@@ -302,6 +302,17 @@ string DBQuery::GetRow( void )
         size_t nSize = m_Row.size();
         for ( size_t i=0; i<nSize; i++)
         {
+            if ( strRow != "[" )
+            {
+                strRow += ",";
+            }
+
+            if ( m_Row.indicator( i ) == eNull )
+            {
+                strRow += "null";
+                continue;
+            }
+
             const ColumnProperties& props = m_Row.getProperties(i);
             //std::cout << '<' << props.getName() << '>';
             switch(props.getDataType())
@@ -310,12 +321,26 @@ string DBQuery::GetRow( void )
                 {
                     strRow += '"';
                     string s = m_Row.get<std::string>(i);
-                    for (size_t j=0; j<s.length(); ++j)
+                    size_t nLen = s.length();
+                    for (size_t j=0; j<nLen; j++)
                     {
-                        if ( s[ j ] == '"' )
+                        unsigned short uChar = (unsigned short)s[ j ];
+                        if ( uChar < 32 )
                         {
+                            // escape control characters (assuming UTF-8)
+                            char szTmp[20]; // overkill...
+                            sprintf( szTmp, "\\u%04x", uChar );
+                            strRow += szTmp;
+                            continue;
+                        }
+
+                        if ( uChar == '"' )
+                        {
+                            // escape double quotes because this string
+                            // is enclosed with double quotes
                             strRow += '\\';
                         }
+
                         strRow += s[ j ];
                     }
                     strRow += '"';
@@ -361,11 +386,6 @@ string DBQuery::GetRow( void )
                     break;
                 }
             } // switch
-
-            if ( i < nSize-1 )
-            {
-                strRow += ",";
-            }
         } // for loop of row contents
         strRow += "]";
         return strRow;
