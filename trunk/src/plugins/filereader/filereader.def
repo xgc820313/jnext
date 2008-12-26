@@ -1,5 +1,0 @@
-LIBRARY   filereader
-
-EXPORTS
-	SetEventFunc	@1
-	InvokeFunction	@2
